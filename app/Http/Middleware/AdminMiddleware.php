@@ -18,6 +18,8 @@ class AdminMiddleware
     {
         $user = $request->user();
 
+        // dd($user);
+
         if (!$user || $user->role !== 'admin') {
             if ($request->expectsJson() || $request->is('api/*')) {
                 if ($user && $request->bearerToken()) {

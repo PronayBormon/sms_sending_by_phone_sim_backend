@@ -16,7 +16,7 @@ class SettingSeeder extends Seeder
         Setting::updateOrCreate(
             ['id' => 1],
             [
-                'site_name'         => 'Pink House',
+                'site_name'         => 'My Website',
                 'site_email'        => 'admin@example.com',
                 'site_phone'        => '+8801700000000',
                 'site_address'      => 'Dhaka, Bangladesh',
@@ -30,16 +30,16 @@ class SettingSeeder extends Seeder
                 'dark_logo'         => null,
                 'favicon'           => null,
 
-                'meta_title'        => 'Pink House',
-                'meta_description'  => 'Welcome to Pink House.',
+                'meta_title'        => 'My Website',
+                'meta_description'  => 'Welcome to My Website.',
 
-                'facebook'          => 'https://facebook.com/pinkhouse',
-                'twitter'           => 'https://twitter.com/pinkhouse',
-                'linkedin'          => 'https://linkedin.com/pinkhouse',
-                'instagram'         => 'https://instagram.com/pinkhouse',
+                'facebook'          => 'https://facebook.com',
+                'twitter'           => 'https://twitter.com',
+                'linkedin'          => 'https://linkedin.com',
+                'instagram'         => 'https://instagram.com',
 
-                'footer_text'       => 'Welcome to Pink House',
-                'copyright_text'    => now()->year . ' Pink House. All rights reserved.',
+                'footer_text'       => 'Welcome to My Website',
+                'copyright_text'    => '© ' . now()->year . ' My Website. All rights reserved.',
             ]
         );
     }

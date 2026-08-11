@@ -11,6 +11,10 @@ interface MenuItem extends SideNavItem {
     children?: MenuItem[];
 }
 
+// const { setting } = usePage().props as any;
+
+// console.log(setting + "===========================")
+
 const items: MenuItem[] = [
     {
         title: 'Dashboard',
@@ -18,12 +22,56 @@ const items: MenuItem[] = [
         icon_name: 'dashboard',
         icon: 'material-symbols-outlined menu-icon',
     },
+
     {
         title: 'Users',
         href: '/admin/users',
         icon_name: 'group',
         icon: 'material-symbols-outlined menu-icon',
     },
+
+    {
+        title: 'Teams',
+        href: '/admin/teams',
+        icon_name: 'corporate_fare',
+        icon: 'material-symbols-outlined menu-icon',
+    },
+
+    {
+        title: 'Contacts',
+        href: '/admin/contacts',
+        icon_name: 'contacts',
+        icon: 'material-symbols-outlined menu-icon',
+    },
+
+    {
+        title: 'Contact Lists',
+        href: '/admin/contact-lists',
+        icon_name: 'list_alt',
+        icon: 'material-symbols-outlined menu-icon',
+    },
+
+    // {
+    //     title: 'Email Templates',
+    //     href: '/admin/email-templates',
+    //     icon_name: 'mail',
+    //     icon: 'material-symbols-outlined menu-icon',
+    // },
+
+    // {
+    //     title: 'SMTPs',
+    //     href: '/admin/smtps',
+    //     icon_name: 'dns',
+    //     icon: 'material-symbols-outlined menu-icon',
+    // },
+
+    {
+        title: 'Campaigns',
+        href: '/admin/campaigns',
+        icon_name: 'campaign',
+        icon: 'material-symbols-outlined menu-icon',
+    },
+
     {
         title: 'Content',
         href: '',
@@ -44,6 +92,7 @@ const items: MenuItem[] = [
             },
         ],
     },
+
     {
         title: 'Queue Management',
         href: '',
@@ -60,6 +109,7 @@ const items: MenuItem[] = [
             },
         ],
     },
+
     {
         title: 'System',
         href: '',
@@ -72,6 +122,7 @@ const items: MenuItem[] = [
             },
         ],
     },
+
     {
         title: 'Settings',
         href: '',
@@ -150,37 +201,66 @@ export default function MainSidebar() {
                 </Link>
 
                 {/* sidebar collaps button  */}
-                <button aria-label="Expand sidebar" className="sidebar-burger-menu-close bg-transparent py-3 border-0 opacity-0 z-n1 position-absolute top-50 end-0 translate-middle-y" id="sidebar-burger-menu-close" onClick={toggleSidebar} type="button" >
-                    <span className="border-1 d-block for-dark-burger" style={{ borderBottom: "1px solid #475569", height: "1px", width: "25px", transform: "rotate(45deg)" }}></span>
-                    <span className="border-1 d-block for-dark-burger" style={{ borderBottom: "1px solid #475569", height: "1px", width: "25px", transform: "rotate(-45deg)" }}></span>
+                <button
+                    aria-label="Expand sidebar"
+                    className="sidebar-burger-menu-close bg-transparent py-3 border-0 opacity-0 z-n1 position-absolute top-50 end-0 translate-middle-y"
+                    id="sidebar-burger-menu-close"
+                    onClick={toggleSidebar}
+                    type="button"
+                >
+                    <span className="border-1 d-block for-dark-burger" style={{
+                        borderBottom: "1px solid #475569", height: "1px", width: "25px", transform: "rotate(45deg)"
+                    }}>
+                    </span>
+                    <span className="border-1 d-block for-dark-burger" style={{
+                        borderBottom: "1px solid #475569", height: "1px", width: "25px", transform: "rotate(-45deg)"
+                    }}>
+                    </span>
                 </button>
-                <button aria-label="Collapse sidebar" className="sidebar-burger-menu bg-transparent p-0 border-0" id="sidebar-burger-menu" onClick={toggleSidebar} type="button">
-                    <span className="border-1 d-block for-dark-burger" style={{ borderBottom: "1px solid #475569", height: "1px", width: "25px" }}></span>
-                    <span className="border-1 d-block for-dark-burger" style={{ borderBottom: "1px solid #475569", height: "1px", width: "25px" }}></span>
-                    <span className="border-1 d-block for-dark-burger" style={{ borderBottom: "1px solid #475569", height: "1px", width: "25px" }}></span>
+                <button
+                    aria-label="Collapse sidebar"
+                    className="sidebar-burger-menu bg-transparent p-0 border-0"
+                    id="sidebar-burger-menu"
+                    onClick={toggleSidebar}
+                    type="button"
+                >
+                    <span className="border-1 d-block for-dark-burger" style={{ borderBottom: "1px solid #475569", height: "1px", width: "25px" }}>
+                    </span>
+                    <span className="border-1 d-block for-dark-burger" style={{ borderBottom: "1px solid #475569", height: "1px", width: "25px" }}>
+                    </span>
+                    <span className="border-1 d-block for-dark-burger" style={{ borderBottom: "1px solid #475569", height: "1px", width: "25px" }}>
+                    </span>
                 </button>
             </div>
 
-            <aside className="layout-menu menu-vertical menu" data-simplebar="" id="layout-menu" >
+            <aside
+                className="layout-menu menu-vertical menu "
+                data-simplebar=""
+                id="layout-menu"
+            >
                 <ul className="menu-inner">
                     {items.map((item, index) => {
                         const hasChildren =
                             item.children &&
                             item.children.length > 0;
+
                         const isActive =
                             item.href !== '#' &&
                             page.url.startsWith(
                                 item.href as string
                             );
+
                         const isChildActive =
                             item.children?.some((child) =>
                                 page.url.startsWith(
                                     child.href as string
                                 )
                             );
+
                         const isOpen =
                             openMenu === item.title ||
                             isChildActive;
+
                         return (
                             <li
                                 key={index}
@@ -191,7 +271,10 @@ export default function MainSidebar() {
                             >
                                 {hasChildren ? (
                                     <>
-                                        <a className={`menu-link menu-toggle ${isOpen ? 'active' : '' }`} href="javascript:void(0);"
+                                        <a
+                                            className={`menu-link menu-toggle ${isOpen ? 'active' : ''
+                                                }`}
+                                            href="javascript:void(0);"
                                             onClick={() =>
                                                 setOpenMenu(
                                                     isOpen ? null : item.title

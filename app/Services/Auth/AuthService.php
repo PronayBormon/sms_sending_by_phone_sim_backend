@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
+use App\Models\LoginHistory;
+use Illuminate\Support\Facades\Request;
+use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
 
 class AuthService
 {
@@ -31,7 +34,6 @@ class AuthService
 
         if ($exists) {
             if ($exists->email_verified_at != null) {
-                // return $this->errorResponse('Email already verified', 409);
                 throw new \Exception('Email already verified');
             }
 
@@ -87,20 +89,113 @@ class AuthService
 
     public function login(array $credentials)
     {
+        $ip = Request::ip();
+        $userAgent = Request::userAgent();
+
         if (!Auth::attempt($credentials)) {
+            LoginHistory::create([
+                'email' => $credentials['email'] ?? null,
+                'ip_address' => $ip,
+                'user_agent' => $userAgent,
+                'status' => 'failed',
+            ]);
+
             throw ValidationException::withMessages([
                 'email' => ['Invalid credentials.']
             ]);
         }
 
         $auth = Auth::user();
-
         $user = User::find($auth->id);
 
-        $token = $user->createToken('api-token')->plainTextToken;
+        if ($user->hasEnabledTwoFactorAuthentication() || $user->two_factor_type === 'email') {
+            if ($user->two_factor_type === 'email') {
+                $otp = (new Otp)->generate($user->email, 'numeric', 6, 15);
+                $user->update([
+                    'two_factor_email_code' => $otp->token,
+                    'two_factor_email_code_expires_at' => now()->addMinutes(15),
+                ]);
+                Mail::to($user->email)->send(new \App\Mail\TwoFactorEmailCode($otp->token));
+            }
+
+            return [
+                'two_factor_required' => true,
+                'type' => $user->two_factor_type === 'none' ? 'authenticator' : $user->two_factor_type,
+                'user_id' => $user->id,
+            ];
+        }
+
+        LoginHistory::create([
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'ip_address' => $ip,
+            'user_agent' => $userAgent,
+            'status' => 'success',
+        ]);
+
+        $tokenResult = $user->createToken('api-token');
+        $tokenResult->accessToken->update([
+            'ip_address' => $ip,
+            'user_agent' => $userAgent,
+        ]);
 
         return [
-            'token' => $token,
+            'token' => $tokenResult->plainTextToken,
+            'user' => $user,
+        ];
+    }
+
+    public function twoFactorLogin(array $data)
+    {
+        $user = User::findOrFail($data['user_id']);
+        
+        $ip = Request::ip();
+        $userAgent = Request::userAgent();
+
+        if ($user->two_factor_type === 'email') {
+            $validate = (new Otp)->validate($user->email, $data['code']);
+            if (!$validate->status) {
+                LoginHistory::create(['email' => $user->email, 'ip_address' => $ip, 'user_agent' => $userAgent, 'status' => 'failed']);
+                throw ValidationException::withMessages(['code' => [$validate->message]]);
+            }
+            $user->update([
+                'two_factor_email_code' => null,
+                'two_factor_email_code_expires_at' => null,
+            ]);
+        } else {
+            $engine = app(TwoFactorAuthenticationProvider::class);
+            if (!$engine->verify(decrypt($user->two_factor_secret), $data['code'])) {
+                // Check recovery codes
+                $validRecoveryCode = collect($user->recoveryCodes())->first(function ($code) use ($data) {
+                    return hash_equals($code, $data['code']) ? $code : null;
+                });
+                
+                if (!$validRecoveryCode) {
+                    LoginHistory::create(['email' => $user->email, 'ip_address' => $ip, 'user_agent' => $userAgent, 'status' => 'failed']);
+                    throw ValidationException::withMessages(['code' => ['The provided two factor authentication code is invalid.']]);
+                }
+                $user->replaceRecoveryCode($validRecoveryCode);
+            }
+        }
+
+        Auth::login($user);
+
+        LoginHistory::create([
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'ip_address' => $ip,
+            'user_agent' => $userAgent,
+            'status' => 'success',
+        ]);
+
+        $tokenResult = $user->createToken('api-token');
+        $tokenResult->accessToken->update([
+            'ip_address' => $ip,
+            'user_agent' => $userAgent,
+        ]);
+
+        return [
+            'token' => $tokenResult->plainTextToken,
             'user' => $user,
         ];
     }

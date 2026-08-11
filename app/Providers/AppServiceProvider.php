@@ -100,20 +100,20 @@ class AppServiceProvider extends ServiceProvider
 
     protected function configureApiRateLimiting(): void
     {
-        RateLimiter::for('api', function (Request $request) {
-            $key = Str::lower((string) $request->input('email', 'guest')) . '|' . $request->ip();
-
-            return Limit::perMinute(10)->by($key);
-        });
-
         RateLimiter::for('auth-api', function (Request $request) {
-            $key = Str::lower((string) $request->input('email', 'guest')).'|'.$request->ip();
+            $key = Str::lower((string) $request->input('email', 'guest')) . '|' . $request->ip();
 
             return Limit::perMinute(10)->by($key);
         });
 
         RateLimiter::for('profile-api', function (Request $request) {
             return Limit::perMinute(60)->by(
+                optional($request->user())->id ?: $request->ip()
+            );
+        });
+
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::perMinute(120)->by(
                 optional($request->user())->id ?: $request->ip()
             );
         });

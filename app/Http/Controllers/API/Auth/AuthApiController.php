@@ -26,16 +26,30 @@ class AuthApiController extends Controller
 
     public function register(RegisterRequest $request)
     {
+        try {
+            $result = $this->service->register(
+                $request->validated()
+            );
 
-        $result = $this->service->register(
-            $request->validated()
-        );
+            return $this->successResponse(
+                'OTP sent to email',
+                $result,
+                201
+            );
+        } catch (\Throwable $e) {
 
-        return $this->successResponse(
-            'Otp Send to Email',
-            $result,
-            201
-        );
+            \Log::error('Registration failed', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+
+            return $this->errorResponse(
+                $e->getMessage(),
+                422,
+                null
+            );
+        }
     }
 
     public function verifyRegister(OtpVerify $request)
@@ -68,6 +82,29 @@ class AuthApiController extends Controller
         $result = $this->service->login(
             $request->validated()
         );
+
+        if (isset($result['two_factor_required']) && $result['two_factor_required']) {
+            return $this->successResponse(
+                'Two-factor authentication required',
+                $result,
+                202
+            );
+        }
+
+        return $this->successResponse(
+            'Login successful',
+            $result,
+        );
+    }
+
+    public function twoFactorLogin(Request $request)
+    {
+        $data = $request->validate([
+            'user_id' => 'required|integer',
+            'code' => 'required|string',
+        ]);
+
+        $result = $this->service->twoFactorLogin($data);
 
         return $this->successResponse(
             'Login successful',

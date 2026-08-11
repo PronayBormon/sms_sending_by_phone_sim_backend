@@ -1,0 +1,920 @@
+/* ============================================================
+   EMAIL BUILDER – Full-screen drag-and-drop style email editor
+   ============================================================ */
+
+/* ---------- Root Layout ---------- */
+:root {
+    background-color: #fff;
+}
+.eb-root {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 240px);
+    min-height: 550px;
+    width: 100%;
+    background: #f8f9fb;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #1e293b;
+    overflow: hidden;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+/* ---------- Top Bar ---------- */
+.eb-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    padding: 0 16px;
+    background: #fff;
+    border-bottom: 1px solid #e2e8f0;
+    flex-shrink: 0;
+    gap: 12px;
+}
+
+.eb-topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+    background-color: #fff;
+}
+
+.eb-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #4f46e5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+    flex-shrink: 0;
+    background-color: #fff;
+}
+
+.eb-breadcrumb {
+    font-size: 12px;
+    color: #94a3b8;
+    background-color: #fff;
+}
+
+.eb-breadcrumb a {
+    color: #94a3b8;
+    text-decoration: none;
+}
+
+.eb-breadcrumb a:hover {
+    color: #4f46e5;
+}
+
+.eb-template-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 300px;
+    background-color: #fff;
+}
+
+.eb-topbar-center {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #fff;
+}
+
+.eb-undo-redo {
+    display: flex;
+    gap: 2px;
+    background-color: #fff;
+}
+
+.eb-undo-redo button {
+    border: none;
+    background: transparent;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+    font-size: 18px;
+    transition: all 0.15s;
+    background-color: #fff;
+}
+
+.eb-undo-redo button:hover {
+    background: #f1f5f9;
+    color: #475569;
+    background-color: #fff;
+}
+
+.eb-view-toggle {
+    display: flex;
+    background: #f1f5f9;
+    border-radius: 8px;
+    padding: 3px;
+    gap: 2px;
+}
+
+.eb-view-toggle button {
+    border: none;
+    background: transparent;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #64748b;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background-color: #fff;
+}
+
+.eb-view-toggle button.active {
+    background: #fff;
+    color: #1e293b;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.eb-topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #fff;
+}
+
+.eb-block-count {
+    font-size: 12px;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+.eb-btn-outline {
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    color: #475569;
+    padding: 7px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background-color: #fff;
+}
+
+.eb-btn-outline:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+}
+
+.eb-btn-primary {
+    border: none;
+    background: #4f46e5;
+    color: #fff;
+    padding: 7px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.eb-btn-primary:hover {
+    background: #4338ca;
+}
+
+.eb-btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ---------- Body (3-column) ---------- */
+.eb-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* ---------- Left Sidebar ---------- */
+.eb-left {
+    width: 240px;
+    background: #fff;
+    border-right: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    overflow: hidden;
+    background-color: #fff;
+}
+
+.eb-left-tabs {
+    display: flex;
+    border-bottom: 1px solid #e2e8f0;
+    background-color: #fff;
+}
+
+.eb-left-tabs button {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 12px 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+    background-color: #fff;
+}
+
+.eb-left-tabs button.active {
+    color: #4f46e5;
+}
+
+.eb-left-tabs button.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #4f46e5;
+}
+
+.eb-left-heading {
+    padding: 16px 16px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+}
+
+.eb-elements-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 12px 16px;
+}
+
+.eb-element-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 2px;
+}
+
+.eb-element-item:hover {
+    background: #f1f5f9;
+    background-color: #fff;
+}
+
+.eb-element-item .eb-el-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    font-size: 18px;
+    flex-shrink: 0;
+    transition: all 0.15s;
+    background-color: #fff;
+}
+
+.eb-element-item:hover .eb-el-icon {
+    background: #e0e7ff;
+    color: #4f46e5;
+}
+
+.eb-element-item .eb-el-info h4 {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.eb-element-item .eb-el-info p {
+    margin: 2px 0 0;
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+/* ---------- Center Canvas ---------- */
+.eb-canvas-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* White strip with controls */
+.eb-canvas-controls-bar {
+    background: #fff;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 8px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    z-index: 2;
+}
+
+/* Scrollable area — takes the email bgColor */
+.eb-canvas-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    /* display: flex;
+    flex-direction: column; */
+    align-items: center;
+    padding: 30px 20px 60px;
+    min-height: 0;
+}
+
+/* Outer band (unused now, kept for compat) */
+.eb-canvas-outer {
+    display: none;
+}
+
+.eb-preheader-bar {
+    width: 100%;
+    max-width: 660px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px 8px 0 0;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: #64748b;
+    margin-bottom: 0;
+}
+
+.eb-preheader-bar span {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.eb-preheader-bar .eb-preheader-label {
+    font-weight: 600;
+    color: #1e293b;
+    flex-shrink: 0;
+}
+
+.eb-preheader-bar .eb-preheader-dismiss {
+    cursor: pointer;
+    color: #94a3b8;
+    font-size: 14px;
+    padding: 2px;
+}
+
+.eb-email-canvas {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    min-height: 400px;
+    position: relative;
+    margin: 0 auto;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.eb-email-canvas.mobile {
+    width: 375px !important;
+}
+
+/* Block in canvas */
+.eb-block {
+    position: relative;
+    cursor: pointer;
+    transition: outline 0.15s;
+    outline: 2px solid transparent;
+    outline-offset: -2px;
+}
+
+.eb-block:hover {
+    outline: 2px solid #a5b4fc;
+}
+
+.eb-block.selected {
+    outline: 2px solid #4f46e5;
+}
+
+.eb-block-actions {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    display: none;
+    gap: 3px;
+    z-index: 10;
+}
+
+.eb-block:hover .eb-block-actions,
+.eb-block.selected .eb-block-actions {
+    display: flex;
+}
+
+.eb-block-actions button {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 6px;
+    cursor: pointer;
+    color: #64748b;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    transition: all 0.15s;
+}
+
+.eb-block-actions button:hover {
+    background: #4f46e5;
+    color: #fff;
+}
+
+.eb-block-actions button.delete:hover {
+    background: #ef4444;
+}
+
+/* Individual block type styles inside the canvas */
+.eb-render-header {
+    background: #4f46e5;
+    color: #fff;
+    text-align: center;
+    padding: 28px 40px;
+    font-size: 22px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.eb-render-heading {
+    padding: 24px 40px;
+    font-size: 26px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.eb-render-text {
+    padding: 12px 40px;
+    font-size: 15px;
+    line-height: 1.7;
+    color: #475569;
+}
+
+.eb-render-button {
+    padding: 16px 40px;
+    text-align: center;
+}
+
+.eb-render-button a {
+    display: inline-block;
+    background: #4f46e5;
+    color: #fff;
+    padding: 12px 28px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.eb-render-button a:hover {
+    background: #4338ca;
+}
+
+.eb-render-image {
+    padding: 16px 40px;
+    text-align: center;
+}
+
+.eb-render-image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+.eb-render-image-placeholder {
+    padding: 50px 40px;
+    text-align: center;
+    color: #94a3b8;
+    background: #f8fafc;
+    border: 2px dashed #e2e8f0;
+    margin: 16px 40px;
+    border-radius: 8px;
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.eb-render-image-placeholder .material-symbols-outlined {
+    font-size: 32px;
+    color: #cbd5e1;
+}
+
+.eb-render-columns {
+    display: flex;
+    padding: 16px 40px;
+    gap: 16px;
+}
+
+.eb-render-columns > div {
+    flex: 1;
+    padding: 16px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #64748b;
+}
+
+.eb-render-divider {
+    padding: 8px 40px;
+}
+
+.eb-render-divider hr {
+    border: none;
+    border-top: 1px solid #e5e7eb;
+    margin: 0;
+}
+
+.eb-render-spacer {
+    height: 32px;
+}
+
+.eb-render-social {
+    text-align: center;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.eb-social-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #4f46e5;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background 0.15s;
+}
+
+.eb-social-icon:hover {
+    background: #4338ca;
+}
+
+.eb-render-footer {
+    background: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+    text-align: center;
+    padding: 28px 40px;
+    font-size: 12px;
+    color: #6b7280;
+    line-height: 1.7;
+}
+
+.eb-render-footer a {
+    color: #4f46e5;
+    text-decoration: underline;
+}
+
+/* Add block button */
+.eb-add-block-btn {
+    margin: 16px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 20px;
+    border: 2px dashed #cbd5e1;
+    background: transparent;
+    border-radius: 8px;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    max-width: 660px;
+}
+
+.eb-add-block-btn:hover {
+    border-color: #4f46e5;
+    color: #4f46e5;
+    background: #eef2ff;
+}
+
+.eb-canvas-footer {
+    margin-top: 12px;
+    font-size: 12px;
+    color: #94a3b8;
+    text-align: center;
+}
+
+/* ---------- Right Sidebar ---------- */
+.eb-right {
+    width: 300px;
+    background: #fff;
+    border-left: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.eb-right-header {
+    padding: 16px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.eb-right-header h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.eb-right-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+}
+
+.eb-prop-section {
+    margin-bottom: 20px;
+}
+
+.eb-prop-section h4 {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #94a3b8;
+    margin: 0 0 10px;
+}
+
+.eb-prop-field {
+    margin-bottom: 14px;
+}
+
+.eb-prop-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.eb-prop-field input[type="text"],
+.eb-prop-field input[type="number"],
+.eb-prop-field input[type="url"],
+.eb-prop-field textarea,
+.eb-prop-field select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #1e293b;
+    background: #fff;
+    transition: border-color 0.15s;
+    font-family: inherit;
+}
+
+.eb-prop-field input:focus,
+.eb-prop-field textarea:focus,
+.eb-prop-field select:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.eb-prop-field textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+.eb-color-input-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.eb-color-input-group input[type="color"] {
+    -webkit-appearance: none;
+    width: 32px;
+    height: 32px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 2px;
+    flex-shrink: 0;
+}
+
+.eb-color-input-group input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: 4px;
+}
+
+.eb-color-input-group input[type="text"] {
+    flex: 1;
+}
+
+.eb-width-input-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.eb-width-input-group input {
+    flex: 1;
+}
+
+.eb-width-input-group span {
+    font-size: 12px;
+    color: #94a3b8;
+    flex-shrink: 0;
+}
+
+.eb-align-group {
+    display: flex;
+    gap: 4px;
+}
+
+.eb-align-group button {
+    flex: 1;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    padding: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    color: #64748b;
+    transition: all 0.15s;
+}
+
+.eb-align-group button.active {
+    background: #4f46e5;
+    color: #fff;
+    border-color: #4f46e5;
+}
+
+.eb-right-empty {
+    padding: 40px 16px;
+    text-align: center;
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+.eb-right-empty .material-symbols-outlined {
+    font-size: 40px;
+    color: #cbd5e1;
+    margin-bottom: 8px;
+}
+
+/* Layers list */
+.eb-layers-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 12px;
+}
+
+.eb-layer-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 13px;
+    color: #475569;
+}
+
+.eb-layer-item:hover {
+    background: #f1f5f9;
+}
+
+.eb-layer-item.selected {
+    background: #eef2ff;
+    color: #4f46e5;
+}
+
+.eb-layer-item .eb-layer-icon {
+    font-size: 16px;
+    color: #94a3b8;
+    width: 20px;
+    text-align: center;
+}
+
+.eb-layer-item .eb-layer-name {
+    flex: 1;
+    font-weight: 500;
+}
+
+.eb-layer-item .eb-layer-type {
+    font-size: 11px;
+    color: #94a3b8;
+    text-transform: capitalize;
+}
+
+/* Padding inputs */
+.eb-padding-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.eb-padding-grid .eb-prop-field {
+    margin-bottom: 0;
+}
+
+.eb-padding-grid label {
+    font-size: 10px;
+}
+
+/* ---------- Drag & Drop ---------- */
+.eb-element-item {
+    cursor: grab;
+}
+.eb-element-item:active {
+    cursor: grabbing;
+    opacity: 0.7;
+}
+
+.eb-block[draggable] {
+    cursor: grab;
+}
+.eb-block[draggable]:active {
+    cursor: grabbing;
+}
+
+/* Drop indicators on canvas blocks */
+.eb-block.eb-drag-before {
+    border-top: 3px solid #4f46e5 !important;
+    box-shadow: 0 -2px 8px rgba(79, 70, 229, 0.3);
+}
+.eb-block.eb-drag-after {
+    border-bottom: 3px solid #4f46e5 !important;
+    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
+}
+
+/* Layer drag indicators */
+.eb-layer-item {
+    cursor: grab;
+}
+.eb-layer-item:active {
+    cursor: grabbing;
+}
+.eb-layer-item.eb-drag-before {
+    border-top: 2px solid #4f46e5;
+}
+.eb-layer-item.eb-drag-after {
+    border-bottom: 2px solid #4f46e5;
+}
+
+/* Dragging ghost visual */
+.eb-block.eb-dragging {
+    opacity: 0.4;
+    background: #f1f5f9;
+}
+

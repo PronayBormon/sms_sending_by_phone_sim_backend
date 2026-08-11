@@ -1,111 +1,8 @@
 import { Head } from '@inertiajs/react';
-import { useState } from 'react';
 import DashboardChart from '../../widget/chart';
-import TimeLineChart from '../../widget/timeline-chart';
-
-type BookingView = 'week' | 'month';
+import MainLayout from '@/layouts/main-layout';
 
 export default function Dashboard() {
-    const [BookingView, setBookingView] = useState<BookingView>('month');
-    const today = new Date();
-    const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-    const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-    const timelineStart = BookingView === 'week'
-        ? new Date(today.getFullYear(), today.getMonth(), Math.max(1, today.getDate() - 6))
-        : monthStart;
-    const timelineEnd = BookingView === 'week' ? today : monthEnd;
-    const range = timelineEnd.getTime() - timelineStart.getTime();
-    const dateAt = (progress: number) => new Date(timelineStart.getTime() + range * progress);
-    const salesTimelineItems = [
-        {
-            label: 'Deluxe Suite',
-            ranges: [
-                {
-                    start: dateAt(0.05),
-                    end: dateAt(0.28),
-                    color: '#6258cc',
-                    booking: {
-                        bookingId: '#BK-10342',
-                        guest: 'Sarah Williams',
-                        property: 'Deluxe Suite · Room 204',
-                        status: 'Confirmed',
-                        amount: '$1,240',
-                    },
-                },
-                {
-                    start: dateAt(0.54),
-                    end: dateAt(0.78),
-                    color: '#8b5cf6',
-                    booking: {
-                        bookingId: '#BK-10358',
-                        guest: 'James Cooper',
-                        property: 'Deluxe Suite · Room 204',
-                        status: 'Confirmed',
-                        amount: '$980',
-                    },
-                },
-                
-                // {
-                //     start: new Date(2026, 7, 10),
-                //     end: new Date(2026, 7, 25),
-                //     color: '#8b5cf8',
-                //     booking: {
-                //         bookingId: '#BK-10359',
-                //         guest: 'James Cooper',
-                //         property: 'Deluxe Suite · Room 204',
-                //         status: 'Confirmed',
-                //         amount: '$980',
-                //     },
-                // },
-            ],
-        },
-        {
-            label: 'Garden Villa',
-            ranges: [{
-                start: dateAt(0.2),
-                end: dateAt(0.57),
-                color: '#13c296',
-                booking: {
-                    bookingId: '#BK-10345',
-                    guest: 'Daniel Reed',
-                    property: 'Garden Villa · Villa 08',
-                    status: 'Checked in',
-                    amount: '$2,100',
-                },
-            }],
-        },
-        {
-            label: 'Ocean View',
-            ranges: [{
-                start: dateAt(0.48),
-                end: dateAt(0.85),
-                color: '#3b82f6',
-                booking: {
-                    bookingId: '#BK-10349',
-                    guest: 'Olivia Martin',
-                    property: 'Ocean View · Room 112',
-                    status: 'Pending',
-                    amount: '$1,680',
-                },
-            }],
-        },
-        {
-            label: 'Family Room',
-            ranges: [{
-                start: dateAt(0.7),
-                end: dateAt(0.98),
-                color: '#ffab56',
-                booking: {
-                    bookingId: '#BK-10362',
-                    guest: 'Noah Johnson',
-                    property: 'Family Room · Room 318',
-                    status: 'Confirmed',
-                    amount: '$1,450',
-                },
-            }],
-        },
-    ];
-
     return (
         <>
             <Head title="Dashboard" />
@@ -115,32 +12,59 @@ export default function Dashboard() {
                         <div className="card bg-white p-20 rounded-10 border border-white mb-4">
                             <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
                                 <h3>
-                                    Bookings
+                                    Total Sales
                                 </h3>
-                                <div className="btn-group" role="group" aria-label="Sales timeline view">
-                                    <button
-                                        className={`btn btn-sm ${BookingView === 'week' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
-                                        onClick={() => setBookingView('week')}
-                                        type="button"
-                                        style={{padding: "10px 5px", fontSize: "14px"}}
-                                    >
-                                        Week
+                                <div className="dropdown select-dropdown without-border">
+                                    <button aria-expanded="false" className="dropdown-toggle bg-transparent text-secondary fs-15" data-bs-toggle="dropdown">
+                                        Year 2025
                                     </button>
-                                    <button
-                                        className={`btn btn-sm ${BookingView === 'month' ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
-                                        onClick={() => setBookingView('month')}
-                                        type="button"
-                                        style={{padding: "10px 5px", fontSize: "14px"}}
-                                    >
-                                        Month
-                                    </button>
+                                    <ul className="dropdown-menu dropdown-menu-end bg-white border-0 box-shadow rounded-10" data-simplebar="">
+                                        <li>
+                                            <button className="dropdown-item text-secondary">
+                                                Year 2025
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <button className="dropdown-item text-secondary">
+                                                Year 2025
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <button className="dropdown-item text-secondary">
+                                                Year 2023
+                                            </button>
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
-                            <TimeLineChart
-                                items={salesTimelineItems}
-                                startDate={timelineStart}
-                                endDate={timelineEnd}
-                                height={270}
+                            {/* Area Chart */}
+                            <DashboardChart
+                                type="area"
+                                height="260"
+                                categories={[
+                                    'Jan',
+                                    'Feb',
+                                    'Mar',
+                                    'Apr',
+                                    'May',
+                                    'Jun',
+                                    'Jul',
+                                    'Aug',
+                                    'Sep',
+                                    'Oct',
+                                    'Nov',
+                                    'Dec',
+                                ]}
+                                series={[
+                                    {
+                                        name: 'Sales',
+                                        data: [120, 200, 150, 300, 280, 400, 120, 190, 150, 300, 280, 400],
+                                    },
+                                    {
+                                        name: 'Revenue',
+                                        data: [80, 150, 120, 250, 230, 350, 120, 200, 180, 150, 130, 190],
+                                    },
+                                ]}
                             />
 
 
@@ -153,23 +77,23 @@ export default function Dashboard() {
                                     <div className="d-flex">
                                         <div className="flex-grow-1">
                                             <h3 className="mb-10">
-                                                Active Bookings
+                                                Total Orders
                                             </h3>
                                             <h2 className="fs-26 fw-medium mb-0 lh-1">
-                                                128
+                                                20,705
                                             </h2>
                                         </div>
                                         <div className="flex-shrink-0 ms-3">
                                             <div className="bg-primary text-white text-center rounded-circle d-block" style={{ width: "75px", height: "75px", lineHeight: "105px" }}>
                                                 <i className="material-symbols-outlined fs-40">
-                                                    calendar_month
+                                                    shopping_basket
                                                 </i>
                                             </div>
                                         </div>
                                     </div>
                                     <div className="d-flex justify-content-between align-items-center" style={{ marginTop: "21px" }}>
                                         <p className="mb-0 fs-14">
-                                            12 new bookings this week
+                                            4.75% Increase in orders last week
                                         </p>
                                         <span className="d-flex align-content-center gap-1 bg-success bg-opacity-10 border border-success" style={{ padding: "3px 5px" }}>
                                             <i className="material-symbols-outlined fs-14 text-success">
@@ -187,23 +111,23 @@ export default function Dashboard() {
                                     <div className="d-flex">
                                         <div className="flex-grow-1">
                                             <h3 className="mb-10">
-                                                Active Tenants
+                                                Total Customers
                                             </h3>
                                             <h2 className="fs-26 fw-medium mb-0 lh-1">
-                                                86
+                                                84,127
                                             </h2>
                                         </div>
                                         <div className="flex-shrink-0 ms-3">
                                             <div className="bg-info text-white text-center rounded-circle d-block" style={{ width: "75px", height: "75px", lineHeight: "105px" }}>
                                                 <i className="material-symbols-outlined fs-40">
-                                                    group
+                                                    diversity_2
                                                 </i>
                                             </div>
                                         </div>
                                     </div>
                                     <div className="d-flex justify-content-between align-items-center" style={{ marginTop: "21px" }}>
                                         <p className="mb-0 fs-14">
-                                            4 leases renew this month
+                                            Total visitors decreased by 1.25%
                                         </p>
                                         <span className="d-flex align-content-center gap-1 bg-danger bg-opacity-10 border border-danger" style={{ padding: "3px 5px" }}>
                                             <i className="material-symbols-outlined fs-14 text-danger">
@@ -225,10 +149,10 @@ export default function Dashboard() {
                                     <div className="d-flex">
                                         <div className="flex-grow-1">
                                             <h3 className="mb-10">
-                                                Monthly Rent
+                                                Total Revenue
                                             </h3>
                                             <h2 className="fs-26 fw-medium mb-0 lh-1">
-                                                $48,620
+                                                $15,278
                                             </h2>
                                         </div>
                                         <div className="flex-shrink-0 ms-3">
@@ -241,7 +165,7 @@ export default function Dashboard() {
                                     </div>
                                     <div className="d-flex justify-content-between align-items-center" style={{ marginTop: "23px" }}>
                                         <p className="mb-0 fs-14">
-                                            6.8% collected above last month
+                                            Revenue increases this month
                                         </p>
                                         <span className="d-flex align-content-center gap-1 bg-success bg-opacity-10 border border-success" style={{ padding: "3px 5px" }}>
                                             <i className="material-symbols-outlined fs-14 text-success">
@@ -257,23 +181,23 @@ export default function Dashboard() {
                             <div className="col-md-6 col-xxxl-6 col-xxl-12">
                                 <div className="bg-primary-50 p-20 border rounded-10 border-primary-50 mb-4">
                                     <h3 className="text-white mb-12">
-                                        Property Overview
+                                        Sales Overview
                                     </h3>
                                     <div className="d-flex flex-wrap gap-2 justify-content-between mb-14">
                                         <div>
                                             <span className="fs-14 text-white mb-1 d-block">
-                                                Occupied Units
+                                                Total Sales
                                             </span>
                                             <h2 className="fs-20 fw-medium lh-1 text-white mb-0">
-                                                92
+                                                9,586
                                             </h2>
                                         </div>
                                         <div>
                                             <span className="fs-14 text-white mb-1 d-block">
-                                                Vacant Units
+                                                Monthly Sales
                                             </span>
                                             <h2 className="fs-20 fw-medium lh-1 text-white mb-0">
-                                                8
+                                                3,507
                                             </h2>
                                         </div>
                                         <div>
@@ -281,7 +205,7 @@ export default function Dashboard() {
                                                 Todayâs Sales
                                             </span>
                                             <h2 className="fs-20 fw-medium lh-1 text-white mb-0">
-                                                3
+                                                357
                                             </h2>
                                         </div>
                                     </div>
@@ -290,7 +214,7 @@ export default function Dashboard() {
                                             </div>
                                         </div> */}
                                     <span className="fs-14 text-white d-block" style={{ marginBottom: "-6px" }}>
-                                        92% portfolio occupancy
+                                        20% Increase in last month
                                     </span>
                                 </div>
                             </div>
@@ -304,7 +228,7 @@ export default function Dashboard() {
                                 <div className="card bg-white p-20 rounded-10 border border-white mb-4">
                                     <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-20">
                                         <h3>
-                                            Income vs Expenses
+                                            Profit
                                         </h3>
                                         <div className="dropdown select-dropdown without-border">
                                             <button aria-expanded="false" className="dropdown-toggle bg-transparent text-secondary fs-15" data-bs-toggle="dropdown">
@@ -338,12 +262,12 @@ export default function Dashboard() {
                                         ]}
                                         series={[
                                             {
-                                                name: 'Rental income',
-                                                data: [42, 46, 44, 49, 51, 48, 53],
+                                                name: 'Sales',
+                                                data: [120, 200, 150, 300, 280, 280, 400],
                                             },
                                             {
-                                                name: 'Operating expenses',
-                                                data: [21, 19, 23, 20, 24, 22, 25],
+                                                name: 'Revenue',
+                                                data: [350, 120, 200, 180, 150, 130, 190],
                                             },
                                         ]}
                                     />
@@ -353,7 +277,7 @@ export default function Dashboard() {
                                 <div className="card bg-white p-20 rounded-10 border border-white mb-4">
                                     <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-20">
                                         <h3>
-                                            Occupancy Trend
+                                            Average Daily Sales
                                         </h3>
                                         <span className="d-flex align-content-center gap-1 bg-success bg-opacity-10 border border-success" style={{ padding: "3px 5px" }}>
                                             <i className="material-symbols-outlined fs-14 text-success">
@@ -384,12 +308,12 @@ export default function Dashboard() {
                                         ]}
                                         series={[
                                             {
-                                                name: 'Occupancy',
-                                                data: [81, 83, 82, 86, 88, 87, 90, 91, 89, 92, 91, 92],
+                                                name: 'Sales',
+                                                data: [120, 200, 150, 300, 280, 400, 120, 190, 150, 300, 280, 400],
                                             },
                                             {
-                                                name: 'Lease renewals',
-                                                data: [5, 7, 6, 8, 9, 7, 10, 8, 9, 11, 10, 12],
+                                                name: 'Revenue',
+                                                data: [80, 150, 120, 250, 230, 350, 120, 200, 180, 150, 130, 190],
                                             },
                                         ]}
                                     />
@@ -398,19 +322,19 @@ export default function Dashboard() {
                             <div className="col-md-6">
                                 <div className="card p-20 bg-light-40 rounded-10 border-light-40 mb-4 position-relative z-1">
                                     <h3 className="mb-20">
-                                        Top Property This Month
+                                        Best Seller Of The Month
                                     </h3>
                                     <h3 className="mb-12 text-primary-50">
-                                        Palm House Residences
+                                        Michael Marquez!
                                     </h3>
                                     <h2 className="lh-1 fs-26 fw-medium">
-                                        $12.4K
+                                        $3.5K
                                         <span className="fs-16 text-body">
-                                            (Rental income)
+                                            (Sales)
                                         </span>
                                     </h2>
                                     <a className="fw-medium fs-16 text-secondary hover-text d-inline-block" href="#" style={{ marginTop: "84px" }}>
-                                        View property
+                                        Details View
                                     </a>
                                     <img alt="man" className="position-absolute bottom-0 end-0 pe-3" src="/backend/assets/images/man.png" />
                                 </div>
@@ -418,7 +342,7 @@ export default function Dashboard() {
                             <div className="col-md-6">
                                 <div className="card p-20 bg-white rounded-10 border border-white mb-4 position-relative z-1">
                                     <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-20">
-                                        <h3>New Tenants This Month</h3>
+                                        <h3>New Customers This Month</h3>
 
                                         <span
                                             className="d-flex align-content-center gap-1 bg-success bg-opacity-10 border border-success"
@@ -512,7 +436,7 @@ export default function Dashboard() {
                         <div className="card bg-white p-20 rounded-10 border border-white mb-4">
                             <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-20">
                                 <h3>
-                                    Featured Properties
+                                    Top Selling Products
                                 </h3>
                                 <div className="dropdown select-dropdown without-border">
                                     <button aria-expanded="false" className="dropdown-toggle bg-transparent text-secondary fs-15" data-bs-toggle="dropdown">
@@ -752,7 +676,7 @@ export default function Dashboard() {
                         <div className="card bg-white p-20 rounded-10 border border-white">
                             <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-20">
                                 <h3>
-                                    Booking Summary
+                                    Order Summary
                                 </h3>
                                 <div className="dropdown select-dropdown without-border">
                                     <button aria-expanded="false" className="dropdown-toggle bg-transparent text-secondary fs-15" data-bs-toggle="dropdown">
@@ -787,7 +711,7 @@ export default function Dashboard() {
                                     Completed 60%
                                 </span>
                                 <span className="fs-15 text-secondary">
-                                    New Bookings 30%
+                                    New Order 30%
                                 </span>
                                 <span className="fs-15 text-secondary">
                                     Pending 10%
@@ -1140,7 +1064,7 @@ export default function Dashboard() {
                             <div className="col-xxl-12 col-lg-6 col-xxxl-6">
                                 <div className="card bg-white p-20 rounded-10 border border-white mb-4">
                                     <h3 className="mb-20">
-                                        Top Performing Properties
+                                        Top Sales Locations
                                     </h3>
                                     <div className="row align-items-center">
                                         <div className="col-lg-7 col-sm-6">
@@ -1214,7 +1138,7 @@ export default function Dashboard() {
                                 <div className="card bg-white p-20 rounded-10 border border border-white mb-4">
                                     <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-0">
                                         <h3>
-                                            Rental Income
+                                            Revenue
                                         </h3>
                                         <div className="dropdown select-dropdown without-border">
                                             <button aria-expanded="false" className="dropdown-toggle bg-transparent text-secondary fs-15" data-bs-toggle="dropdown">
@@ -1256,7 +1180,7 @@ export default function Dashboard() {
                         <div className="card bg-white rounded-10 border border-white mb-4">
                             <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 p-20">
                                 <h3>
-                                    Recent Bookings
+                                    Recent Orders
                                 </h3>
                                 <div className="d-flex align-items-center">
                                     <div className="dropdown select-dropdown without-border">
@@ -1302,10 +1226,10 @@ export default function Dashboard() {
                                         <thead>
                                             <tr>
                                                 <th className="fw-medium" scope="col">
-                                                    Booking ID
+                                                    Order ID
                                                 </th>
                                                 <th className="fw-medium" scope="col">
-                                                    Tenant
+                                                    Customer
                                                 </th>
                                                 <th className="fw-medium" scope="col">
                                                     Created
@@ -1314,7 +1238,7 @@ export default function Dashboard() {
                                                     Total
                                                 </th>
                                                 <th className="fw-medium" scope="col">
-                                                    Net Income
+                                                    Profit
                                                 </th>
                                                 <th className="fw-medium" scope="col">
                                                     Status
@@ -1598,7 +1522,7 @@ export default function Dashboard() {
                         <div className="card bg-white p-20 rounded-10 border border-white mb-4">
                             <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-20">
                                 <h3>
-                                    Payment History
+                                    Transactions History
                                 </h3>
                                 <div className="dropdown select-dropdown without-border">
                                     <button aria-expanded="false" className="dropdown-toggle bg-transparent text-secondary fs-15" data-bs-toggle="dropdown">

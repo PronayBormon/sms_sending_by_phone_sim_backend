@@ -150,6 +150,22 @@ class UserController extends Controller
 
         return back()->with('success', 'User deleted successfully');
     }
+    public function search(Request $request)
+    {
+        $search = $request->get('q');
+
+        $users = User::query()
+            ->when($search, function ($query, $search) {
+                $query->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%");
+            })
+            ->limit(10)
+            ->get(['id', 'name', 'first_name', 'last_name', 'email', 'avatar']);
+
+        return response()->json($users);
+    }
 
     public function sessions(User $user)
     {

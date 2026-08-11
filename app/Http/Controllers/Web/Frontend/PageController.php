@@ -24,7 +24,6 @@ class PageController extends Controller
     {
         return $this->renderPage(Page::termsAndConditions());
     }
-
     public function logout()
     {
         Auth::logout();

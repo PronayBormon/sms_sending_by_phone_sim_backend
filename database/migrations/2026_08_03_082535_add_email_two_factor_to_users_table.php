@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->text('two_factor_secret')->after('password')->nullable();
-            $table->text('two_factor_recovery_codes')->after('two_factor_secret')->nullable();
-            $table->timestamp('two_factor_confirmed_at')->after('two_factor_recovery_codes')->nullable();
+            $table->enum('two_factor_type', ['none', 'authenticator', 'email'])->default('none')->after('two_factor_recovery_codes');
+            $table->string('two_factor_email_code')->nullable()->after('two_factor_type');
+            $table->timestamp('two_factor_email_code_expires_at')->nullable()->after('two_factor_email_code');
         });
     }
 
@@ -25,9 +25,9 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn([
-                'two_factor_secret',
-                'two_factor_recovery_codes',
-                'two_factor_confirmed_at',
+                'two_factor_type',
+                'two_factor_email_code',
+                'two_factor_email_code_expires_at',
             ]);
         });
     }

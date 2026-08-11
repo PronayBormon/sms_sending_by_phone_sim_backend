@@ -18,8 +18,24 @@ return new class extends Migration
             $table->string('last_name')->nullable();
             $table->string('username')->nullable();
             $table->string('email')->unique();
+            $table->string('company_name')->nullable();
+            $table->string('job_title')->nullable();
+            $table->string('bio')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->text('two_factor_secret')->nullable();
+            $table->text('two_factor_recovery_codes')->nullable();
+            $table->timestamp('two_factor_confirmed_at')->nullable();
+            $table->text('avatar')->nullable();
+            $table->string('role')->default('user');
+
+            $table->boolean('email_notifications')->default(true);
+            $table->boolean('push_notifications')->default(true);
+            $table->boolean('sms_notifications')->default(false);
+            $table->boolean('match_notifications')->default(true);
+            $table->boolean('message_notifications')->default(true);
+            $table->boolean('like_notifications')->default(true);
+            $table->boolean('marketing_notifications')->default(false);
             $table->rememberToken();
             $table->timestamps();
         });

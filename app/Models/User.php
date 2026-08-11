@@ -30,6 +30,9 @@ class User extends Authenticatable implements PasskeyUser
         'password',
         'avatar',
         'role',
+        'company_name',
+        'job_title',
+        'bio',
         'email_verified_at',
         'remember_token',
 
@@ -40,9 +43,19 @@ class User extends Authenticatable implements PasskeyUser
         "message_notifications",
         "like_notifications",
         "marketing_notifications",
+
+        'two_factor_type',
+        'two_factor_email_code',
+        'two_factor_email_code_expires_at',
     ];
 
-    protected $hidden = ['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'];
+    protected $hidden = [
+        'password',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
+        'remember_token',
+        'two_factor_email_code'
+    ];
 
     /**
      * Get the attributes that should be cast.
@@ -62,6 +75,7 @@ class User extends Authenticatable implements PasskeyUser
             'message_notifications' => 'boolean',
             'like_notifications' => 'boolean',
             'marketing_notifications' => 'boolean',
+            'two_factor_email_code_expires_at' => 'datetime',
         ];
     }
 
@@ -74,5 +88,32 @@ class User extends Authenticatable implements PasskeyUser
             return asset($value);
         }
         return $value;
+    }
+
+    public function createdTeams(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Team::class, 'creator_id');
+    }
+
+    public function teamMemberships(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(TeamMember::class, 'user_id');
+    }
+
+    public function teams(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Team::class, 'team_members', 'user_id', 'team_id')
+            ->withPivot('role')
+            ->withTimestamps();
+    }
+
+    public function contactLists(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ContactList::class, 'creator_id');
+    }
+
+    public function emailTemplates(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(EmailTemplate::class, 'creator_id');
     }
 }

@@ -18,7 +18,7 @@ export default function MainNavbar() {
                 className="header-area bg-white mb-4 rounded-10 border border-white"
                 id="header-area">
                 <div className="row align-items-center">
-                    <div className="col-md-6  col-6">
+                    <div className="col-md-6">
                         <div className="left-header-content">
                             <ul className="d-flex align-items-center ps-0 mb-0 list-unstyled justify-content-center justify-content-md-start">
                                 <li className="d-xl-none">
@@ -76,7 +76,7 @@ export default function MainNavbar() {
                         </div>
                     </div>
 
-                    <div className="col-md-6 col-6">
+                    <div className="col-md-6">
                         <div className="right-header-content mt-3 mt-md-0">
                             <ul className="d-flex align-items-center justify-content-center justify-content-md-end ps-0 mb-0 list-unstyled">
                                 {/* Language */}
