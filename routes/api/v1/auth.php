@@ -5,7 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
-Route::controller(AuthApiController::class)->prefix('auth:sanctum')->middleware('throttle:auth-api')->group(function () {
+Route::controller(AuthApiController::class)->prefix('auth')->middleware('throttle:auth-api')->group(function () {
     Route::post('register', 'register');
     Route::post('verify/register', 'verifyRegister');
     Route::post('login', 'login');

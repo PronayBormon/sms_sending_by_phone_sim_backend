@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('campaigns', function (Blueprint $table) {
             $table->id();
             $table->foreignId('team_id')->nullable()->constrained('teams')->cascadeOnDelete();
-            $table->foreignId('template_id')->nullable()->constrained('email_templates')->nullOnDelete();
-            $table->foreignId('smtp_id')->nullable()->constrained('smtps')->nullOnDelete();
+            $table->foreignId('template_id')->nullable()->constrained('message_templates')->nullOnDelete();
+            $table->foreignId('sim_id')->nullable()->constrained('device_sims')->nullOnDelete();
             $table->string('campaign_name')->nullable();
             $table->longText('description')->nullable();
             $table->enum('campaign_type', ['regular', 'automated', 'ab_test'])->default('regular');

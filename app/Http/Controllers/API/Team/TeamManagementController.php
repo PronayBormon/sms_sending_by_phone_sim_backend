@@ -23,16 +23,59 @@ class TeamManagementController extends Controller
     private int $teamId;
     private TeamMember $membership;
 
+    // public function __construct()
+    // {
+    //     $auth = User::with('team')->find(Auth::id());
+
+    //     abort_if(!$auth || $auth->team, 404, 'Team not found.');
+
+    //     $team            = $auth->team;
+    //     $this->teamId    = $team->id;
+    //     $this->membership = TeamMember::where('team_id', $this->teamId)
+    //         ->where('user_id', $auth->id)
+    //         ->firstOrFail();
+    // }
+
     public function __construct()
     {
         $auth = Auth::user();
-        abort_if(!$auth || $auth->teams->isEmpty(), 404, 'Team not found.');
 
-        $team            = $auth->teams->first();
-        $this->teamId    = $team->id;
-        $this->membership = TeamMember::where('team_id', $this->teamId)
+        abort_if(!$auth, 401, 'Unauthenticated.');
+
+        // First find by user_id
+        $membership = TeamMember::with('team')
             ->where('user_id', $auth->id)
-            ->firstOrFail();
+            ->where('status', 'active')
+            ->first();
+
+        // If not found, find by invited email
+        if (!$membership) {
+            $membership = TeamMember::with('team')
+                ->whereNull('user_id')
+                ->where('invited_email', $auth->email)
+                ->where('status', 'invited')
+                ->first();
+                
+            if ($membership) {
+                $membership->update([
+                    'user_id' => $auth->id,
+                    'status' => 'active',
+                    'invited_email' => null,
+                ]);
+
+                $membership->refresh();
+                $membership->load('team');
+            }
+        }
+
+        abort_if(
+            !$membership || !$membership->team,
+            404,
+            'Team not found.'
+        );
+
+        $this->teamId = $membership->team_id;
+        $this->membership = $membership;
     }
 
     /**
@@ -91,7 +134,7 @@ class TeamManagementController extends Controller
             $alreadyMember = TeamMember::where('team_id', $this->teamId)
                 ->where(function ($q) use ($data) {
                     $q->whereHas('user', fn($u) => $u->where('email', $data['email']))
-                      ->orWhere('invited_email', $data['email']);
+                        ->orWhere('invited_email', $data['email']);
                 })
                 ->exists();
 

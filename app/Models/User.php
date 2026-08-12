@@ -106,14 +106,20 @@ class User extends Authenticatable implements PasskeyUser
             ->withPivot('role')
             ->withTimestamps();
     }
+    public function team()
+    {
+        return $this->hasOne(Team::class, 'creator_id');
+    }
 
     public function contactLists(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ContactList::class, 'creator_id');
     }
 
-    public function emailTemplates(): \Illuminate\Database\Eloquent\Relations\HasMany
+
+
+    public function messageTemplates(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(EmailTemplate::class, 'creator_id');
+        return $this->hasMany(MessageTemplate::class, 'creator_id');
     }
 }

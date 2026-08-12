@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API\User;
 use App\Concerns\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdatePassword;
+use App\Models\Team;
+use App\Models\TeamMember;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -111,6 +113,71 @@ class UserController extends Controller
         return $this->successResponse(
             'Notification settings updated successfully',
             $user->fresh()->only($this->notificationFields)
+        );
+    }
+    public function createTeam(Request $request)
+    {
+        $auth = Auth::user();
+
+        // First check active membership by user_id
+        $teamMembership = TeamMember::with('team')
+            ->where('user_id', $auth->id)
+            ->where('status', 'active')
+            ->first();
+
+        // If user_id doesn't exist yet, check invitation by email
+        if (!$teamMembership) {
+            $teamMembership = TeamMember::with('team')
+                ->whereNull('user_id')
+                ->where('invited_email', $auth->email)
+                ->where('status', 'invited')
+                ->first();
+
+            // Attach invitation to the logged-in user
+            if ($teamMembership) {
+                $teamMembership->update([
+                    'user_id' => $auth->id,
+                    'status' => 'active',
+                    'invited_email' => null,
+                ]);
+
+                $teamMembership->refresh();
+                $teamMembership->load('team');
+            }
+        }
+
+        // User already belongs to a team
+        if ($teamMembership) {
+            return response()->json([
+                'message' => 'You already have a team.',
+                'team' => $teamMembership->team,
+            ], 409);
+        }
+
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+        ]);
+
+        // Create new team
+        $team = Team::create([
+            'creator_id' => $auth->id,
+            'team_name' => $request->name,
+        ]);
+
+        // Creator becomes owner/member
+        $membership = TeamMember::create([
+            'user_id' => $auth->id,
+            'team_id' => $team->id,
+            'role' => 'owner',
+            'status' => 'active',
+        ]);
+
+        return $this->successResponse(
+            'Team created successfully.',
+            [
+                'team' => $team,
+                'membership' => $membership,
+            ]
         );
     }
 }

@@ -39,7 +39,7 @@ class SettingSeeder extends Seeder
                 'instagram'         => 'https://instagram.com',
 
                 'footer_text'       => 'Welcome to My Website',
-                'copyright_text'    => '© ' . now()->year . ' My Website. All rights reserved.',
+                'copyright_text'    => now()->year . ' My Website. All rights reserved.',
             ]
         );
     }

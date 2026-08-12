@@ -1,5 +1,6 @@
 import { Head, Link, router, useForm, usePage } from "@inertiajs/react";
 import { useState, useEffect } from "react";
+import Select from "react-select";
 
 interface TeamOption {
     id: number;
@@ -178,27 +179,13 @@ export default function Edit({ contactList, contacts = [], teams = [], users = [
 
                         <div className="mb-20">
                             <label className="label fs-16 mb-2">Assigned Team</label>
-                            <select className="form-select" value={data.team_id} onChange={(e) => setData("team_id", e.target.value)}>
-                                <option value="">Select Team</option>
-                                {teams.map((team) => (
-                                    <option key={team.id} value={team.id}>
-                                        {team.team_name}
-                                    </option>
-                                ))}
-                            </select>
+                            <Select isClearable options={teams.map((team) => ({ value: String(team.id), label: team.team_name }))} value={teams.find((team) => String(team.id) === data.team_id) ? { value: data.team_id, label: teams.find((team) => String(team.id) === data.team_id)?.team_name ?? "" } : null} onChange={(option) => setData("team_id", option?.value ?? "")} placeholder="Select Team" styles={{ control: (base) => ({ ...base, minHeight: "45px", borderColor: "#e2e8f0" }) }} />
                             {errors.team_id && <div className="text-danger mt-1">{errors.team_id}</div>}
                         </div>
 
                         <div className="mb-20">
                             <label className="label fs-16 mb-2">Creator</label>
-                            <select className="form-select" value={data.creator_id} onChange={(e) => setData("creator_id", e.target.value)}>
-                                <option value="">Select Creator</option>
-                                {users.map((user) => (
-                                    <option key={user.id} value={user.id}>
-                                        {user.first_name} {user.last_name} ({user.email})
-                                    </option>
-                                ))}
-                            </select>
+                            <Select isClearable options={users.map((user) => ({ value: String(user.id), label: `${user.first_name} ${user.last_name} (${user.email})` }))} value={users.find((user) => String(user.id) === data.creator_id) ? { value: data.creator_id, label: (() => { const user = users.find((item) => String(item.id) === data.creator_id)!; return `${user.first_name} ${user.last_name} (${user.email})`; })() } : null} onChange={(option) => setData("creator_id", option?.value ?? "")} placeholder="Select Creator" styles={{ control: (base) => ({ ...base, minHeight: "45px", borderColor: "#e2e8f0" }) }} />
                             {errors.creator_id && <div className="text-danger mt-1">{errors.creator_id}</div>}
                         </div>
 

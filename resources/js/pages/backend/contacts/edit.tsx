@@ -1,4 +1,5 @@
 import { Head, Link, useForm } from "@inertiajs/react";
+import Select from "react-select";
 
 interface TeamOption {
     id: number;
@@ -134,14 +135,7 @@ export default function Edit({ contact, teams = [] }: Props) {
                         <h3 className="mb-20">Team Assignment</h3>
                         <div className="mb-20">
                             <label className="label fs-16 mb-2">Assigned Team</label>
-                            <select className="form-select" value={data.team_id} onChange={(e) => setData("team_id", e.target.value)}>
-                                <option value="">Select Team</option>
-                                {teams.map((team) => (
-                                    <option key={team.id} value={team.id}>
-                                        {team.team_name}
-                                    </option>
-                                ))}
-                            </select>
+                            <Select isClearable options={teams.map((team) => ({ value: String(team.id), label: team.team_name }))} value={teams.find((team) => String(team.id) === data.team_id) ? { value: data.team_id, label: teams.find((team) => String(team.id) === data.team_id)?.team_name ?? "" } : null} onChange={(option) => setData("team_id", option?.value ?? "")} placeholder="Select Team" styles={{ control: (base) => ({ ...base, minHeight: "45px", borderColor: "#e2e8f0" }) }} />
                             {errors.team_id && <div className="text-danger mt-1">{errors.team_id}</div>}
                         </div>
                     </div>

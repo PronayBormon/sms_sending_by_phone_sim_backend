@@ -11,15 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('email_templates', function (Blueprint $table) {
+        Schema::create('message_templates', function (Blueprint $table) {
             $table->id();
             $table->foreignId('team_id')->nullable()->constrained('teams')->cascadeOnDelete();
             $table->enum('template_type', ['private', 'public'])->default('private');
             $table->foreignId('creator_id')->nullable()->constrained('users')->nullOnDelete();
-            $table->string('title')->nullable();
+            $table->string('title');
             $table->string('sub_title')->nullable();
-            $table->longText('template')->nullable();
-            $table->longText('design')->nullable();
+            $table->text('message');
+            $table->json('variables')->nullable();
+            $table->boolean('is_active')->default(true);
+
             $table->timestamps();
         });
     }
@@ -29,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('email_templates');
+        Schema::dropIfExists('message_templates');
     }
 };

@@ -13,7 +13,7 @@ class Campaign extends Model
     protected $fillable = [
         'team_id',
         'template_id',
-        'smtp_id',
+        'sim_id',
         'campaign_name',
         'description',
         'campaign_type',
@@ -51,12 +51,12 @@ class Campaign extends Model
 
     public function template(): BelongsTo
     {
-        return $this->belongsTo(EmailTemplate::class, 'template_id');
+        return $this->belongsTo(MessageTemplate::class, 'template_id');
     }
 
-    public function smtp(): BelongsTo
+    public function sim(): BelongsTo
     {
-        return $this->belongsTo(Smtp::class, 'smtp_id');
+        return $this->belongsTo(DeviceSim::class, 'sim_id');
     }
 
     public function stats()

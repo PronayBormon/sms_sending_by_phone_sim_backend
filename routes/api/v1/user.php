@@ -10,4 +10,5 @@ Route::controller(UserController::class)->prefix('user')->middleware(['auth:sanc
     Route::post('update', 'update');
     Route::post('update-password', 'updatePassword');
     Route::post('notifications', 'updateNotifications');
+    Route::post('team/create', 'createTeam');
 });

@@ -25689,5 +25689,11 @@ Dark Mode SCSS
 }
 
 
+.custom-card{
+    box-shadow: 1px 0px 15px 3px #3a3a3a21;
+}
 
 
+[data-theme="dark"] .custom-card{
+    box-shadow: 1px 0px 15px 3px #219e4e82;
+}

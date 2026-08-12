@@ -16,4 +16,5 @@ Route::prefix('v1')->group(function () {
     require base_path('routes/api/v1/team.php');
     require base_path('routes/api/v1/template.php');
     require base_path('routes/api/v1/campaign.php');
+    require base_path('routes/api/v1/gateway.php');
 });

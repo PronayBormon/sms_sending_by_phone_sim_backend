@@ -48,9 +48,19 @@ class Team extends Model
         return $this->hasMany(ContactList::class, 'team_id');
     }
 
-    public function emailTemplates(): HasMany
+    public function messageTemplates(): HasMany
     {
-        return $this->hasMany(EmailTemplate::class, 'team_id');
+        return $this->hasMany(MessageTemplate::class);
+    }
+
+    public function devices(): HasMany
+    {
+        return $this->hasMany(Device::class);
+    }
+
+    public function deviceSims(): HasMany
+    {
+        return $this->hasMany(DeviceSim::class);
     }
 
     public function smtps(): HasMany

@@ -15,6 +15,10 @@ use App\Http\Controllers\Web\Backend\ContactListController;
 use App\Http\Controllers\Web\Backend\EmailTemplateController;
 use App\Http\Controllers\Web\Backend\SmtpController;
 use App\Http\Controllers\Web\Backend\CampaignController;
+use App\Http\Controllers\Web\Backend\MessageTemplateController;
+use App\Http\Controllers\Web\Backend\DeviceController;
+use App\Http\Controllers\Web\Backend\DeviceSimController;
+use App\Http\Controllers\Web\Backend\SmsLogController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
@@ -47,8 +51,16 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::post('contact-lists/{id}/remove-contacts', [ContactListController::class, 'removeContacts'])
         ->name('admin.contact-lists.remove-contacts');
 
-    Route::resource('email-templates', EmailTemplateController::class);
-    Route::resource('smtps', SmtpController::class);
+    Route::resource('message-templates', MessageTemplateController::class)
+        ->parameters(['message-templates' => 'messageTemplate']);
+    Route::get('devices', [DeviceController::class, 'index'])->name('devices.index');
+    Route::get('devices/create', [DeviceController::class, 'create'])->name('devices.create');
+    Route::post('devices', [DeviceController::class, 'store'])->name('devices.store');
+    Route::get('devices/{device}', [DeviceController::class, 'show'])->name('devices.show');
+    Route::delete('devices/{device}', [DeviceController::class, 'destroy'])->name('devices.destroy');
+    Route::get('sims/create', [DeviceSimController::class, 'create'])->name('sims.create');
+    Route::post('sims', [DeviceSimController::class, 'store'])->name('sims.store');
+    Route::get('sms-logs', [SmsLogController::class, 'index'])->name('sms-logs.index');
     Route::resource('campaigns', CampaignController::class);
 
 

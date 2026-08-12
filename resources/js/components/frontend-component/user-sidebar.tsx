@@ -66,13 +66,6 @@ const items: MenuItem[] = [
     },
 
     {
-        title: 'SMS Logs',
-        href: '/admin/sms-logs',
-        icon_name: 'receipt_long',
-        icon: 'material-symbols-outlined menu-icon',
-    },
-
-    {
         title: 'Campaigns',
         href: '/admin/campaigns',
         icon_name: 'campaign',
@@ -159,7 +152,7 @@ const items: MenuItem[] = [
     // },
 ];
 
-export default function MainSidebar() {
+export default function UserSidebar() {
     const page = usePage();
     const { setting } = page.props as any;
 

@@ -7,22 +7,24 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class EmailTemplate extends Model
+class MessageTemplate extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'team_id',
-        'template_type',
-        'creator_id',
-        'title',
-        'sub_title',
-        'template',
-        'design',
+        "team_id",
+        "template_type",
+        "creator_id",
+        "title",
+        "sub_title",
+        "message",
+        "variables",
+        "is_active",
     ];
 
     protected $casts = [
-        'design' => 'array',
+        'variables' => 'array',
+        'is_active' => 'boolean',
     ];
 
     public function team(): BelongsTo

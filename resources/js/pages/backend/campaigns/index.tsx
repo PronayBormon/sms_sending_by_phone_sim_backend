@@ -6,7 +6,6 @@ interface Campaign {
     id: number;
     campaign_name: string | null;
     campaign_type: "regular" | "automated" | "ab_test";
-    subject_line: string | null;
     schedule_type: "now" | "later";
     is_draft: boolean;
     is_active: boolean;
@@ -91,7 +90,7 @@ export default function Index({ campaigns, filters }: Props) {
                                 <div className="d-flex align-items-center gap-2 flex-wrap">
                                     <input
                                         className="form-control"
-                                        placeholder="Search campaign or subject"
+                                        placeholder="Search campaign or description"
                                         type="text"
                                         value={search}
                                         onChange={(e) => setSearch(e.target.value)}
@@ -114,7 +113,7 @@ export default function Index({ campaigns, filters }: Props) {
                                                 <th>ID</th>
                                                 <th>Campaign Name</th>
                                                 <th>Type</th>
-                                                <th>Subject</th>
+                                                <th>Template</th>
                                                 <th>Team</th>
                                                 <th>Schedule</th>
                                                 <th>Status</th>
@@ -134,7 +133,7 @@ export default function Index({ campaigns, filters }: Props) {
                                                                 {campaign.campaign_type ? campaign.campaign_type.replace("_", " ") : "regular"}
                                                             </span>
                                                         </td>
-                                                        <td>{campaign.subject_line || "—"}</td>
+                                                        <td>{campaign.template?.title || "—"}</td>
                                                         <td>{campaign.team?.team_name || "—"}</td>
                                                         <td>
                                                             <span className="badge bg-light text-dark text-capitalize">
