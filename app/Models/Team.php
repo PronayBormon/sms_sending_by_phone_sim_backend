@@ -58,6 +58,11 @@ class Team extends Model
         return $this->hasMany(Device::class);
     }
 
+    public function invites(): HasMany
+    {
+        return $this->hasMany(TeamInvite::class);
+    }
+
     public function deviceSims(): HasMany
     {
         return $this->hasMany(DeviceSim::class);

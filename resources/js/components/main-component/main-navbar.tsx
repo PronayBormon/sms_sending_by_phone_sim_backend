@@ -360,26 +360,37 @@ export default function MainNavbar() {
                                             </div>
 
                                             <ul className="admin-link mb-0 list-unstyled">
-                                                <li>
-                                                    <Link href={'/admin/profile'} className="dropdown-item admin-item-link d-flex align-items-center text-body" >
-                                                        <i className="material-symbols-outlined">
-                                                            person
-                                                        </i>
-                                                        <span className="ms-2">
-                                                            My Profile
-                                                        </span>
-                                                    </Link>
-                                                </li>
-                                                <li>
-                                                    <Link href={'/admin/settings/system'} className="dropdown-item admin-item-link d-flex align-items-center text-body" >
-                                                        <i className="material-symbols-outlined">
-                                                            settings
-                                                        </i>
-                                                        <span className="ms-2">
-                                                            Settings
-                                                        </span>
-                                                    </Link>
-                                                </li>
+                                                {auth?.user?.role === 'admin' ? (
+                                                    <>
+                                                        <li>
+                                                            <Link href={'/admin/profile'} className="dropdown-item admin-item-link d-flex align-items-center text-body">
+                                                                <i className="material-symbols-outlined">person</i>
+                                                                <span className="ms-2">Admin Profile</span>
+                                                            </Link>
+                                                        </li>
+                                                        <li>
+                                                            <Link href={'/admin/settings/system'} className="dropdown-item admin-item-link d-flex align-items-center text-body">
+                                                                <i className="material-symbols-outlined">settings</i>
+                                                                <span className="ms-2">Settings</span>
+                                                            </Link>
+                                                        </li>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <li>
+                                                            <Link href={'/user/dashboard'} className="dropdown-item admin-item-link d-flex align-items-center text-body">
+                                                                <i className="material-symbols-outlined">Dashboard</i>
+                                                                <span className="ms-2">Dashboard</span>
+                                                            </Link>
+                                                        </li>
+                                                        <li>
+                                                            <Link href={'/user/profile'} className="dropdown-item admin-item-link d-flex align-items-center text-body">
+                                                                <i className="material-symbols-outlined">person</i>
+                                                                <span className="ms-2">My Profile</span>
+                                                            </Link>
+                                                        </li>
+                                                    </>
+                                                )}
                                                 <li>
                                                     <Link className="dropdown-item admin-item-link d-flex align-items-center text-body" href={logout()}>
                                                         <i className="material-symbols-outlined">

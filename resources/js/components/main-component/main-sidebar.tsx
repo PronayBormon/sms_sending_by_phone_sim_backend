@@ -12,7 +12,6 @@ interface MenuItem extends SideNavItem {
 }
 
 // const { setting } = usePage().props as any;
-
 // console.log(setting + "===========================")
 
 const items: MenuItem[] = [

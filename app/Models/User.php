@@ -13,6 +13,7 @@ use Laravel\Fortify\Contracts\PasskeyUser;
 use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Team;
 
 // #[Fillable(['name', 'email', 'password'])]
 // #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
@@ -114,6 +115,27 @@ class User extends Authenticatable implements PasskeyUser
     public function contactLists(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ContactList::class, 'creator_id');
+    }
+
+    public function currentTeamId()
+    {
+        // Check if user is a member of a team
+        $membership = $this->teamMemberships()->first();
+        if ($membership) {
+            return $membership->team_id;
+        }
+        
+        // Otherwise check if they created a team
+        $team = $this->createdTeams()->first();
+        return $team ? $team->id : null;
+    }
+    /**
+     * Get the current team model for the user.
+     */
+    public function currentTeam()
+    {
+        $teamId = $this->currentTeamId();
+        return $teamId ? \App\Models\Team::find($teamId) : null;
     }
 
 

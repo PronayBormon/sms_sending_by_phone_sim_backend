@@ -29,6 +29,13 @@ interface Team {
             email: string;
         };
     }[];
+    invites?: {
+        id: number;
+        email: string;
+        role: string;
+        status: string;
+        created_at: string;
+    }[];
 }
 
 interface Props {
@@ -240,8 +247,8 @@ export default function Edit({ team, users = [] }: Props) {
                                     {team.members && team.members.length > 0 ? (
                                         team.members.map((member) => (
                                             <tr key={member.id}>
-                                                <td>{member.user.first_name} {member.user.last_name}</td>
-                                                <td>{member.user.email}</td>
+                                                <td>{member.user ? `${member.user.first_name || ''} ${member.user.last_name || ''}`.trim() : 'Invited User'}</td>
+                                                <td>{member.user ? member.user.email : '—'}</td>
                                                 <td className="text-capitalize">{member.role}</td>
                                                 <td>
                                                     <button
@@ -261,6 +268,41 @@ export default function Edit({ team, users = [] }: Props) {
                                     ) : (
                                         <tr>
                                             <td colSpan={4} className="text-center text-muted">No members found.</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div className="card bg-white p-20 rounded-10 border border-white mb-4">
+                        <h3 className="mb-4">Pending Invitations</h3>
+                        <div className="table-responsive">
+                            <table className="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Email</th>
+                                        <th>Role</th>
+                                        <th>Status</th>
+                                        <th>Sent At</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {team.invites && team.invites.length > 0 ? (
+                                        team.invites.map((invite) => (
+                                            <tr key={invite.id}>
+                                                <td>{invite.email}</td>
+                                                <td className="text-capitalize">{invite.role}</td>
+                                                <td>
+                                                    <span className={`badge bg-warning bg-opacity-10 text-warning px-3 py-2 rounded-pill fs-12 text-capitalize`}>
+                                                        {invite.status}
+                                                    </span>
+                                                </td>
+                                                <td>{new Date(invite.created_at).toLocaleDateString()}</td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={4} className="text-center text-muted">No pending invitations found.</td>
                                         </tr>
                                     )}
                                 </tbody>

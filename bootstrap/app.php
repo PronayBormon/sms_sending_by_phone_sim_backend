@@ -27,7 +27,8 @@ return Application::configure(basePath: dirname(__DIR__))
             AddLinkHeadersForPreloadedAssets::class,
         ]);
         $middleware->alias([
-            'admin' => AdminMiddleware::class,
+            'admin'           => AdminMiddleware::class,
+            'viewer_restrict' => \App\Http\Middleware\RestrictViewerRole::class,
         ]);
         $middleware->api(append: [
             'throttle:api',

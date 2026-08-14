@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 
 type PublicPage = {
     title: string;
@@ -12,6 +12,7 @@ type Props = {
 
 export default function Page({ page }: Props) {
     const content = page.content?.trim();
+        const { setting } = usePage().props as any;
 
     return (
         <>
@@ -24,7 +25,7 @@ export default function Page({ page }: Props) {
                             href="/"
                             className="text-sm font-semibold text-[#1b1b18]"
                         >
-                            Laravel
+                            {setting?.site_name}
                         </Link>
 
                         <nav className="flex items-center gap-4 text-sm">

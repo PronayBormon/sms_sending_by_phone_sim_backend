@@ -56,7 +56,7 @@ class TeamController extends Controller
 
     public function show($id)
     {
-        $team = Team::with(['creator', 'members.user'])->findOrFail($id);
+        $team = Team::with(['creator', 'members.user', 'invites'])->findOrFail($id);
 
         return Inertia::render('backend/teams/show', [
             'team' => $team
@@ -65,7 +65,7 @@ class TeamController extends Controller
 
     public function edit($id)
     {
-        $team = Team::with('members.user')->findOrFail($id);
+        $team = Team::with(['members.user', 'invites'])->findOrFail($id);
 
         return Inertia::render('backend/teams/edit', [
             'team' => $team

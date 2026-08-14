@@ -10,7 +10,7 @@ class DashboardController extends Controller
 {
     public function home(Request $request)
     {
-        return Inertia::render('frontend/layouts/home/index');
+        return Inertia::render('frontend/home/index');
     }
 
     public function index(Request $request)
