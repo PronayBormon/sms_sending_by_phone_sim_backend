@@ -14,11 +14,11 @@ class CampaignAnalyticsService
 
     private function getTeamId(): int
     {
-        $auth = Auth::user();
-        if (!$auth || $auth->teams->isEmpty()) {
+        $teamId = auth()->user()->currentTeamId();
+        if (!$teamId) {
             throw ValidationException::withMessages(['team' => 'Team not found.']);
         }
-        return $auth->teams->first()->id;
+        return $teamId;
     }
 
     public function getAnalytics(int $campaignId)
@@ -30,7 +30,7 @@ class CampaignAnalyticsService
         }
 
         $s = $campaign->stats;
-        
+
         $deliveredRate = $s->total_recipients > 0 ? round(($s->delivered_count / $s->total_recipients) * 100, 1) : 0;
         $openRate = $s->delivered_count > 0 ? round(($s->opened_count / $s->delivered_count) * 100, 1) : 0;
         $clickRate = $s->delivered_count > 0 ? round(($s->clicked_count / $s->delivered_count) * 100, 1) : 0;

@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Web\Frontend\User;
 use App\Http\Controllers\Controller;
 use App\Models\Device;
 use App\Models\DeviceSim;
+use App\Models\QrLoginToken;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 
@@ -14,16 +17,16 @@ class UserDeviceController extends Controller
     public function index()
     {
         $teamId = auth()->user()->currentTeamId();
-        
+
         $devices = Device::withCount(['sims as active_sims_count' => function ($query) {
             $query->where('status', 'active');
         }])
-        ->with(['sims' => function ($q) {
-            $q->select('id', 'device_id', 'slot_number', 'phone_number', 'carrier_name', 'status', 'total_sent');
-        }])
-        ->where('team_id', $teamId)
-        ->orderBy('created_at', 'desc')
-        ->get();
+            ->with(['sims' => function ($q) {
+                $q->select('id', 'device_id', 'slot_number', 'phone_number', 'carrier_name', 'status', 'total_sent');
+            }])
+            ->where('team_id', $teamId)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return Inertia::render('frontend/user/devices/index', [
             'devices' => $devices
@@ -33,19 +36,55 @@ class UserDeviceController extends Controller
     public function show($id)
     {
         $teamId = auth()->user()->currentTeamId();
-        
+
         $device = Device::with('sims')
             ->where('team_id', $teamId)
             ->findOrFail($id);
+
+        $device->setAttribute('stats', [
+            'today' => \App\Models\SmsLog::where('device_id', $device->id)->whereDate('created_at', Carbon::today())->count(),
+            'month' => \App\Models\SmsLog::where('device_id', $device->id)->whereMonth('created_at', Carbon::now()->month)->count(),
+            'failed' => \App\Models\SmsLog::where('device_id', $device->id)->whereIn('status', ['failed', 'cancelled'])->count(),
+            'delivered' => \App\Models\SmsLog::where('device_id', $device->id)->where('status', 'delivered')->count(),
+            'total' => \App\Models\SmsLog::where('device_id', $device->id)->count(),
+        ]);
 
         return Inertia::render('frontend/user/devices/show', [
             'device' => $device
         ]);
     }
 
-    public function connect()
+    // public function connect(Request $request)
+    // {
+    //     $token = Str::upper(Str::random(8));
+    //     $hashed = Hash::make($token);
+    //     $request->session()->put('qr_login_token', $hashed);
+    //     $expiresAt = Carbon::now()->addMinutes(2);
+    //     $request->session()->put('qr_login_expires_at', $expiresAt);
+
+    //     return Inertia::render('frontend/user/devices/connect',[
+    //         "token" => $token,
+    //         "expiresAt" => $expiresAt,
+    //     ]);
+    // }
+
+    public function connect(Request $request)
     {
-        return Inertia::render('frontend/user/devices/connect');
+        $token = bin2hex(random_bytes(12));
+
+        $expiresAt = now()->addMinutes(2);
+
+        QrLoginToken::create([
+            'token_hash' => Hash::make($token),
+            'user_id' => auth()->id(),
+            'browser_session_id' => $request->session()->getId(),
+            'expires_at' => $expiresAt,
+        ]);
+
+        return Inertia::render('frontend/user/devices/connect', [
+            'token' => $token,
+            'expiresAt' => $expiresAt,
+        ]);
     }
 
     public function simCards()
@@ -134,5 +173,21 @@ class UserDeviceController extends Controller
         $sim->save();
 
         return back()->with('success', 'SIM card status updated successfully.');
+    }
+
+    public function destroy($id)
+    {
+        $teamId = auth()->user()->currentTeamId();
+        $device = Device::where('team_id', $teamId)->findOrFail($id);
+
+        // Delete associated SIMs explicitly
+        DeviceSim::where('device_id', $device->id)->delete();
+        
+        $name = $device->name;
+        $device->delete();
+
+        \App\Services\TeamActivityService::log($teamId, 'deleted a device', $name);
+
+        return redirect()->route('devices.index')->with('success', 'Device deleted successfully.');
     }
 }

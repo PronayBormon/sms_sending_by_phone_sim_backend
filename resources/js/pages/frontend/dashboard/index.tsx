@@ -21,14 +21,30 @@ interface Invitation {
 
 interface Props {
     invitations: Invitation[];
+    stats: {
+        totalMessagesSent: string;
+        activeContacts: string;
+        deliveryRate: string;
+        campaignsRunning: string;
+    };
+    chartData: {
+        categories: string[];
+        series: number[];
+    };
+    recentCampaigns: {
+        id: number;
+        campaign_name: string;
+        status: string;
+        created_at: string;
+    }[];
 }
 
-const Index = ({ invitations }: Props) => {
+const Index = ({ invitations, stats: dynamicStats, chartData, recentCampaigns }: Props) => {
     const stats = [
-        { title: 'Total Messages Sent', value: '45,231', icon: Send, color: 'text-primary', bg: 'bg-primary-subtle' },
-        { title: 'Active Contacts', value: '12,094', icon: Users, color: 'text-success', bg: 'bg-success-subtle' },
-        { title: 'Delivery Rate', value: '98.5%', icon: Activity, color: 'text-info', bg: 'bg-info-subtle' },
-        { title: 'Campaigns Running', value: '4', icon: MessageSquare, color: 'text-warning', bg: 'bg-warning-subtle' },
+        { title: 'Total Messages Sent', value: dynamicStats.totalMessagesSent, icon: Send, color: 'text-primary', bg: 'bg-primary-subtle' },
+        { title: 'Active Contacts', value: dynamicStats.activeContacts, icon: Users, color: 'text-success', bg: 'bg-success-subtle' },
+        { title: 'Delivery Rate', value: dynamicStats.deliveryRate, icon: Activity, color: 'text-info', bg: 'bg-info-subtle' },
+        { title: 'Campaigns Running', value: dynamicStats.campaignsRunning, icon: MessageSquare, color: 'text-warning', bg: 'bg-warning-subtle' },
     ];
 
     const chartOptions = {
@@ -41,12 +57,13 @@ const Index = ({ invitations }: Props) => {
         dataLabels: { enabled: false },
         stroke: { curve: 'smooth', width: 2 },
         xaxis: {
-            categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            categories: chartData.categories,
         },
         yaxis: {
             labels: {
                 formatter: (val: number) => {
-                    return val + "k"
+                    if (val >= 1000) return (val / 1000).toFixed(1) + "k";
+                    return val.toString();
                 }
             }
         },
@@ -63,7 +80,7 @@ const Index = ({ invitations }: Props) => {
 
     const chartSeries = [{
         name: 'Messages Sent',
-        data: [3.1, 4.0, 2.8, 5.1, 4.2, 10.9, 10.0]
+        data: chartData.series
     }];
 
     return (
@@ -154,29 +171,36 @@ const Index = ({ invitations }: Props) => {
                         <h5 className="fw-bold mb-4">Recent Campaigns</h5>
 
                         <div className="d-flex flex-column gap-4">
-                            {[
-                                { name: 'Summer Promo', status: 'Completed', date: 'Today, 09:30 AM', color: 'success' },
-                                { name: 'Welcome Series', status: 'Active', date: 'Ongoing', color: 'primary' },
-                                { name: 'Re-engagement', status: 'Paused', date: 'Yesterday, 14:00 PM', color: 'warning' },
-                                { name: 'Flash Sale Alert', status: 'Draft', date: '2 days ago', color: 'secondary' }
-                            ].map((campaign, i) => (
-                                <div key={i} className="d-flex align-items-center">
-                                    <div className={`bg-${campaign.color}-subtle p-2 rounded me-3`}>
-                                        <MessageSquare className={`text-${campaign.color}`} size={20} />
-                                    </div>
-                                    <div className="flex-grow-1">
-                                        <h6 className="mb-0 fw-semibold">{campaign.name}</h6>
-                                        <small className="text-muted">{campaign.date}</small>
-                                    </div>
-                                    <div>
-                                        <span className={`badge bg-${campaign.color}-subtle text-${campaign.color} rounded-pill`}>{campaign.status}</span>
-                                    </div>
-                                </div>
-                            ))}
+                            {recentCampaigns && recentCampaigns.length > 0 ? (
+                                recentCampaigns.map((campaign, i) => {
+                                    let color = 'secondary';
+                                    if (campaign.status === 'completed') color = 'success';
+                                    if (campaign.status === 'running') color = 'primary';
+                                    if (campaign.status === 'scheduled') color = 'info';
+                                    if (campaign.status === 'failed') color = 'danger';
+
+                                    return (
+                                        <div key={campaign.id} className="d-flex align-items-center">
+                                            <div className={`bg-${color}-subtle p-2 rounded me-3`}>
+                                                <MessageSquare className={`text-${color}`} size={20} />
+                                            </div>
+                                            <div className="flex-grow-1">
+                                                <h6 className="mb-0 fw-semibold">{campaign.campaign_name}</h6>
+                                                <small className="text-muted">{new Date(campaign.created_at).toLocaleDateString()}</small>
+                                            </div>
+                                            <div>
+                                                <span className={`badge bg-${color}-subtle text-${color} rounded-pill text-capitalize`}>{campaign.status}</span>
+                                            </div>
+                                        </div>
+                                    )
+                                })
+                            ) : (
+                                <div className="text-muted text-center small py-3">No recent campaigns</div>
+                            )}
                         </div>
 
                         <div className="mt-auto pt-4 text-center">
-                            <a href="#" className="text-primary fw-medium text-decoration-none">View All Campaigns &rarr;</a>
+                            <a href="/user/campaigns" className="text-primary fw-medium text-decoration-none">View All Campaigns &rarr;</a>
                         </div>
                     </div>
                 </div>

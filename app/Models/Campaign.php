@@ -63,4 +63,9 @@ class Campaign extends Model
     {
         return $this->hasOne(CampaignStat::class, 'campaign_id');
     }
+
+    public function smsLogs(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(SmsLog::class, 'campaign_id');
+    }
 }

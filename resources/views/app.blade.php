@@ -7,20 +7,28 @@ $setting = \App\Models\Setting::first();
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    {{-- Inline script to detect system dark mode preference and apply it immediately --}}
     <script>
-        (function() {
-            const appearance = '{{ $appearance ?? "system" }}';
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const isDark = appearance === 'dark' || (appearance === 'system' && prefersDark);
-            const theme = isDark ? 'dark' : 'light';
+        (function () {
+        const appearance = '{{ $appearance ?? "system" }}';
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const isDark = appearance === 'dark' || (appearance === 'system' && prefersDark);
+        const theme = isDark ? 'dark' : 'light';
 
-            document.documentElement.classList.toggle('dark', isDark);
-            document.documentElement.style.colorScheme = theme;
+        // Apply immediately to prevent theme flash
+        document.documentElement.classList.toggle('dark', isDark);
+        document.documentElement.style.colorScheme = theme;
+
+        // Body may not exist yet
+        if (document.body) {
             document.body.setAttribute('data-theme', theme);
             document.body.setAttribute('sidebar-data-theme', 'sidebar-show');
-        })();
+        } else {
+            document.addEventListener('DOMContentLoaded', function () {
+                document.body.setAttribute('data-theme', theme);
+                document.body.setAttribute('sidebar-data-theme', 'sidebar-show');
+            });
+        }
+    })();
     </script>
 
     {{-- Inline style to set the HTML background color based on our theme in app.css --}}

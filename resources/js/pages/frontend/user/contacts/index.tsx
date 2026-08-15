@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import UserLayout from '@/layouts/user-layout';
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { Upload, Trash2, FolderPlus, Search, X, Check, Info } from 'lucide-react';
+import { Upload, Trash2, FolderPlus, Search, X, Check, Info, Edit2 } from 'lucide-react';
+import { confirmAction } from '@/utils/confirm';
+import { useIsViewer } from '@/hooks/useRole';
 
 interface Contact {
     id: number;
@@ -31,6 +33,7 @@ interface Props {
 }
 
 export default function Index({ contacts, lists, filters }: Props) {
+    const isViewer = useIsViewer();
     const [search, setSearch] = useState(filters?.search || '');
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [showImportModal, setShowImportModal] = useState(false);
@@ -63,14 +66,14 @@ export default function Index({ contacts, lists, filters }: Props) {
         }
     };
 
-    const handleDelete = (id: number) => {
-        if (confirm('Are you sure you want to delete this contact?')) {
-            router.delete('/user/contacts/' + id);
-        }
+    const handleDelete = async (id: number) => {
+        const ok = await confirmAction({ text: 'This contact will be permanently deleted.', confirmText: 'Yes, delete it' });
+        if (ok) router.delete('/user/contacts/' + id);
     };
 
-    const handleBulkDelete = () => {
-        if (confirm(`Are you sure you want to delete ${selectedIds.length} selected contacts?`)) {
+    const handleBulkDelete = async () => {
+        const ok = await confirmAction({ text: `${selectedIds.length} selected contact(s) will be permanently deleted.`, confirmText: 'Yes, delete all' });
+        if (ok) {
             router.post('/user/contacts/bulk-delete', { ids: selectedIds }, {
                 onSuccess: () => setSelectedIds([])
             });
@@ -115,15 +118,19 @@ export default function Index({ contacts, lists, filters }: Props) {
                     <p className="text-muted small mb-0">Manage your messaging audience</p>
                 </div>
                 <div className="d-flex gap-2">
-                    <button 
-                        onClick={() => setShowImportModal(true)} 
-                        className="btn btn-outline-secondary rounded-3 d-flex align-items-center gap-2"
-                    >
-                        <Upload size={16} /> Import Sheets
-                    </button>
-                    <Link href={'/user/contacts/create'} className="btn btn-primary text-white rounded-3">
-                        + Add Contact
-                    </Link>
+                    {!isViewer && (
+                        <button 
+                            onClick={() => setShowImportModal(true)} 
+                            className="btn btn-outline-secondary rounded-3 d-flex align-items-center gap-2"
+                        >
+                            <Upload size={16} /> Import Sheets
+                        </button>
+                    )}
+                    {!isViewer && (
+                        <Link href={'/user/contacts/create'} className="btn btn-primary text-white rounded-3">
+                            + Add Contact
+                        </Link>
+                    )}
                 </div>
             </div>
 
@@ -141,12 +148,14 @@ export default function Index({ contacts, lists, filters }: Props) {
                         >
                             <FolderPlus size={14} /> Add to List
                         </button>
+                        {!isViewer && (
                         <button 
                             onClick={handleBulkDelete}
                             className="btn btn-sm btn-outline-danger rounded-3 d-flex align-items-center gap-1.5"
                         >
                             <Trash2 size={14} /> Delete Selected
                         </button>
+                        )}
                         <button 
                             onClick={() => setSelectedIds([])}
                             className="btn btn-sm btn-link text-muted p-0 ms-2"
@@ -207,8 +216,19 @@ export default function Index({ contacts, lists, filters }: Props) {
                                             <td>{contact.email || '—'}</td>
                                             <td className="text-muted">{contact.company || '—'}</td>
                                             <td className="px-4 text-end">
-                                                <Link href={'/user/contacts/' + contact.id + '/edit'} className="btn btn-sm btn-light me-2">Edit</Link>
-                                                <button onClick={() => handleDelete(contact.id)} className="btn btn-sm btn-outline-danger">Delete</button>
+                                                <div className="d-flex align-items-center justify-content-end gap-1">
+                                                    {!isViewer && (
+                                                        <Link href={'/user/contacts/' + contact.id + '/edit'} className="btn btn-sm btn-light text-muted p-2" title="Edit">
+                                                            <Edit2 size={15} />
+                                                        </Link>
+                                                    )}
+                                                    {!isViewer && (
+                                                        <button onClick={() => handleDelete(contact.id)} className="btn btn-sm btn-light text-danger p-2" title="Delete">
+                                                            <Trash2 size={15} />
+                                                        </button>
+                                                    )}
+                                                    {isViewer && <span className="text-muted small fst-italic">View only</span>}
+                                                </div>
                                             </td>
                                         </tr>
                                     ))

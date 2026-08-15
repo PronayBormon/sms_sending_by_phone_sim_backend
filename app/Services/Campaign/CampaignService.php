@@ -14,17 +14,17 @@ class CampaignService
 
     private function getTeamId(): int
     {
-        $auth = Auth::user();
-        if (!$auth || $auth->teams->isEmpty()) {
+        $teamId = auth()->user()->currentTeamId();
+        if (!$teamId) {
             throw ValidationException::withMessages(['team' => 'Team not found.']);
         }
-        return $auth->teams->first()->id;
+        return $teamId;
     }
 
     public function listCampaigns(?string $status = null, int $perPage = 15)
     {
         $teamId = $this->getTeamId();
-        
+
         $campaigns = $this->repository->getTeamCampaigns($teamId, $status, $perPage);
         $stats = $this->repository->getCampaignStats($teamId);
 
@@ -57,7 +57,7 @@ class CampaignService
     public function storeCampaign(array $data)
     {
         $data['team_id'] = $this->getTeamId();
-        
+
         // Setup default status based on data
         if (!isset($data['status'])) {
             $data['status'] = 'draft';

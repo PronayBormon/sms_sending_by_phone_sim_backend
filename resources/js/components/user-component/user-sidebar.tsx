@@ -36,12 +36,12 @@ const items: MenuItem[] = [
         icon_name: 'campaign',
         icon: 'material-symbols-outlined menu-icon',
     },
-    {
-        title: 'Scheduled',
-        href: '/user/scheduled',
-        icon_name: 'schedule',
-        icon: 'material-symbols-outlined menu-icon',
-    },
+    // {
+    //     title: 'Scheduled',
+    //     href: '/user/scheduled',
+    //     icon_name: 'schedule',
+    //     icon: 'material-symbols-outlined menu-icon',
+    // },
     {
         title: 'Messages',
         href: '/user/messages',
@@ -66,12 +66,12 @@ const items: MenuItem[] = [
         icon_name: 'sim_card',
         icon: 'material-symbols-outlined menu-icon',
     },
-    {
-        title: 'Gateway Activity',
-        href: '/user/gateway-activity',
-        icon_name: 'swap_horiz',
-        icon: 'material-symbols-outlined menu-icon',
-    },
+    // {
+    //     title: 'Gateway Activity',
+    //     href: '/user/gateway-activity',
+    //     icon_name: 'swap_horiz',
+    //     icon: 'material-symbols-outlined menu-icon',
+    // },
     {
         title: 'Team',
         href: '/user/team',

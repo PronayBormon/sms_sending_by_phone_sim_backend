@@ -9,10 +9,16 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\OtpVerify;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\ResetPasswordRequest;
+use App\Models\LoginHistory;
+use App\Models\QrLoginToken;
 use App\Models\User;
 use App\Services\Auth\AuthService;
+use Carbon\Carbon;
 use Ichtrojan\Otp\Otp;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 
@@ -90,6 +96,70 @@ class AuthApiController extends Controller
                 202
             );
         }
+
+        return $this->successResponse(
+            'Login successful',
+            $result,
+        );
+    }
+
+
+    // -----------------------------------------------------------------
+    // 3️⃣ Verify QR token (called by the mobile app)
+    // -----------------------------------------------------------------
+    public function verifyQrToken(Request $request)
+    {
+        $request->validate([
+            'token' => ['required', 'string'],
+        ]);
+
+        // $user = $request->user();
+
+        // if (!$user) {
+        //     return response()->json([
+        //         'message' => 'Unauthenticated.',
+        //     ], 401);
+        // }
+
+        $qrTokens = QrLoginToken::query()
+            ->whereNull('used_at')
+            ->whereNull('approved_at')
+            ->where('expires_at', '>', now())
+            ->get();
+
+        $qrToken = $qrTokens->first(function ($item) use ($request) {
+            return Hash::check(
+                $request->token,
+                $item->token_hash
+            );
+        });
+
+        if (!$qrToken) {
+            return response()->json([
+                'message' => 'Invalid or expired QR code.',
+            ], 422);
+        }
+
+        $user = User::find($qrToken->user_id);
+
+        $qrToken->update([
+            'user_id' => $user->id,
+            'approved_at' => now(),
+        ]);
+
+
+        LoginHistory::create([
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'status' => 'success',
+        ]);
+
+        $tokenResult = $user->createToken('api-token');
+
+        $result = [
+            'token' => $tokenResult->plainTextToken,
+            'user' => $user,
+        ];
 
         return $this->successResponse(
             'Login successful',

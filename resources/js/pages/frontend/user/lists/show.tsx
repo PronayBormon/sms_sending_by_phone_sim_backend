@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import UserLayout from '@/layouts/user-layout';
 import { Head, Link, router } from '@inertiajs/react';
 import { ArrowLeft, Trash2, UserPlus, Mail, Phone, Calendar, Check, Search, X } from 'lucide-react';
+import { confirmAction } from '@/utils/confirm';
+import { useIsViewer } from '@/hooks/useRole';
 
 interface Contact {
     id: number;
@@ -38,7 +40,8 @@ interface Props {
     availableContacts: AvailableContact[];
 }
 
-export default function Show({ list, contacts, availableContacts }: Props) {
+export default function ListShow({ list, contacts, availableContacts }: Props) {
+    const isViewer = useIsViewer();
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [showAddModal, setShowAddModal] = useState(false);
     const [addSelectedIds, setAddSelectedIds] = useState<number[]>([]);
@@ -58,14 +61,14 @@ export default function Show({ list, contacts, availableContacts }: Props) {
         setSelectedIds(prev => checked ? [...prev, id] : prev.filter(x => x !== id));
     };
 
-    const handleRemoveSingle = (contactId: number) => {
-        if (confirm('Remove this contact from the list?')) {
-            router.post(`/user/lists/${list.id}/remove-contact`, { contact_id: contactId }, { preserveScroll: true });
-        }
+    const handleRemoveSingle = async (contactId: number) => {
+        const ok = await confirmAction({ text: 'This contact will be removed from the list.', confirmText: 'Yes, remove' });
+        if (ok) router.post(`/user/lists/${list.id}/remove-contact`, { contact_id: contactId }, { preserveScroll: true });
     };
 
-    const handleBulkRemove = () => {
-        if (confirm(`Remove ${selectedIds.length} selected contact(s) from the list?`)) {
+    const handleBulkRemove = async () => {
+        const ok = await confirmAction({ text: `${selectedIds.length} selected contact(s) will be removed from this list.`, confirmText: 'Yes, remove all' });
+        if (ok) {
             router.post(`/user/lists/${list.id}/bulk-remove-contacts`, { ids: selectedIds }, {
                 preserveScroll: true,
                 onSuccess: () => setSelectedIds([])
@@ -117,12 +120,14 @@ export default function Show({ list, contacts, availableContacts }: Props) {
                         <span className="fw-medium text-dark">{selectedIds.length} contact(s) selected</span>
                     </div>
                     <div className="d-flex gap-2">
-                        <button
-                            onClick={handleBulkRemove}
-                            className="btn btn-sm btn-danger text-white rounded-3 d-flex align-items-center gap-1"
-                        >
-                            <Trash2 size={14} /> Remove from List
-                        </button>
+                        {!isViewer && (
+                            <button
+                                onClick={handleBulkRemove}
+                                className="btn btn-sm btn-danger text-white rounded-3 d-flex align-items-center gap-1"
+                            >
+                                <Trash2 size={14} /> Remove from List
+                            </button>
+                        )}
                         <button onClick={() => setSelectedIds([])} className="btn btn-sm btn-link text-muted p-0 ms-2">
                             Cancel
                         </button>
@@ -136,12 +141,14 @@ export default function Show({ list, contacts, availableContacts }: Props) {
                         <h5 className="mb-1 fw-bold">Contacts in List</h5>
                         <p className="text-muted mb-0 small">Showing {contacts.total} member(s)</p>
                     </div>
-                    <button
-                        onClick={() => { setShowAddModal(true); setAddSelectedIds([]); setModalSearch(''); }}
-                        className="btn btn-primary text-white rounded-3 d-flex align-items-center gap-2"
-                    >
-                        <UserPlus size={16} /> Add Contacts
-                    </button>
+                    {!isViewer && (
+                        <button
+                            onClick={() => { setShowAddModal(true); setAddSelectedIds([]); setModalSearch(''); }}
+                            className="btn btn-primary text-white rounded-3 d-flex align-items-center gap-2"
+                        >
+                            <UserPlus size={16} /> Add Contacts
+                        </button>
+                    )}
                 </div>
 
                 <div className="card-body p-0">
@@ -199,13 +206,18 @@ export default function Show({ list, contacts, availableContacts }: Props) {
                                             </div>
                                         </td>
                                         <td className="px-4 text-end">
-                                            <button
-                                                onClick={() => handleRemoveSingle(c.id)}
-                                                className="btn btn-sm btn-outline-danger"
-                                                title="Remove from list"
-                                            >
-                                                <Trash2 size={13} /> Remove
-                                            </button>
+                                            <div className="d-flex align-items-center justify-content-end gap-1">
+                                                {!isViewer && (
+                                                    <button
+                                                        onClick={() => handleRemoveSingle(c.id)}
+                                                        className="btn btn-sm btn-outline-danger"
+                                                        title="Remove from list"
+                                                    >
+                                                        <Trash2 size={13} /> Remove
+                                                    </button>
+                                                )}
+                                                {isViewer && <span className="text-muted small fst-italic">View only</span>}
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}

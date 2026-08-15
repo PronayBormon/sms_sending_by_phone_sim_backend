@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import UserLayout from '@/layouts/user-layout';
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { Smartphone, Plus, Wifi, FlaskConical } from 'lucide-react';
+import { Smartphone, Plus, Wifi, FlaskConical, Eye, Trash2 } from 'lucide-react';
+import { confirmAction } from '@/utils/confirm';
+import { useIsViewer } from '@/hooks/useRole';
 
 interface DeviceSim {
     id: number;
@@ -37,6 +39,7 @@ function batteryColor(pct: number) {
 }
 
 export default function Devices({ devices }: Props) {
+    const isViewer = useIsViewer();
     const [showDemoModal, setShowDemoModal] = useState(false);
     const [simCount, setSimCount] = useState<1 | 2>(1);
 
@@ -126,7 +129,6 @@ export default function Devices({ devices }: Props) {
                                     <th className="py-3">Model</th>
                                     <th className="py-3">Android</th>
                                     <th className="py-3">SIMs</th>
-                                    <th className="py-3">Last Seen</th>
                                     <th className="px-4 py-3 text-end">Actions</th>
                                 </tr>
                             </thead>
@@ -164,7 +166,23 @@ export default function Devices({ devices }: Props) {
                                         </td>
                                         <td className="text-muted small">{d.last_seen_at ? new Date(d.last_seen_at).toLocaleString() : 'Never'}</td>
                                         <td className="px-4 text-end">
-                                            <Link href={`/user/devices/${d.id}`} className="btn btn-sm btn-light">View</Link>
+                                            <div className="d-flex align-items-center justify-content-end gap-1">
+                                                <Link href={`/user/devices/${d.id}`} className="btn btn-sm btn-light text-primary p-2" title="View">
+                                                    <Eye size={16} />
+                                                </Link>
+                                                {!isViewer && (
+                                                <button
+                                                    title="Remove Device"
+                                                    onClick={async () => {
+                                                        const ok = await confirmAction({ text: 'This will permanently remove this device and all its SIM cards.', confirmText: 'Yes, remove it' });
+                                                        if (ok) router.delete(`/user/devices/${d.id}`);
+                                                    }}
+                                                    className="btn btn-sm btn-light text-danger p-2"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                                )}
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}

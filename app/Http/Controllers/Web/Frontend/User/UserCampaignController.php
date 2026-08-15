@@ -82,7 +82,35 @@ class UserCampaignController extends Controller
             route('campaigns.edit', $campaign->id)
         );
 
+        if ($campaign->schedule_type === 'now' && $campaign->status === 'sending' && !$campaign->is_draft) {
+            app(\App\Services\CampaignDispatchService::class)->queue($campaign);
+        }
+
         return redirect()->route('campaigns.index')->with('success', 'Campaign created successfully.');
+    }
+
+    public function show(Campaign $campaign)
+    {
+        $teamId = auth()->user()->currentTeamId();
+        if ($campaign->team_id !== $teamId) abort(403);
+
+        $campaign->load(['template', 'sim']);
+        
+        $campaign->setAttribute('stats', [
+            'sent' => \App\Models\SmsLog::where('campaign_id', $campaign->id)->whereIn('status', ['sent', 'delivered'])->count(),
+            'delivered' => \App\Models\SmsLog::where('campaign_id', $campaign->id)->where('status', 'delivered')->count(),
+            'failed' => \App\Models\SmsLog::where('campaign_id', $campaign->id)->whereIn('status', ['failed', 'cancelled'])->count(),
+        ]);
+
+        $logs = \App\Models\SmsLog::with('device:id,name')->where('campaign_id', $campaign->id)->orderBy('created_at', 'desc')->paginate(50);
+        
+        $lists = \App\Models\ContactList::whereIn('id', $campaign->recipient_list_ids ?? [])->get(['id', 'name']);
+
+        return Inertia::render('frontend/user/campaigns/show', [
+            'campaign' => $campaign,
+            'logs' => $logs,
+            'lists' => $lists,
+        ]);
     }
 
     public function edit(Campaign $campaign)
@@ -130,6 +158,10 @@ class UserCampaignController extends Controller
             $campaign->campaign_name,
             route('campaigns.edit', $campaign->id)
         );
+
+        if ($campaign->wasChanged('status') && $campaign->schedule_type === 'now' && $campaign->status === 'sending' && !$campaign->is_draft) {
+            app(\App\Services\CampaignDispatchService::class)->queue($campaign);
+        }
 
         return redirect()->route('campaigns.index')->with('success', 'Campaign updated successfully.');
     }

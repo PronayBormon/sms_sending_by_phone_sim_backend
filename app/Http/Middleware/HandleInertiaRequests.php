@@ -37,6 +37,18 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $setting = Setting::first();
+
+        $teamRole = null;
+        if ($user = $request->user()) {
+            $teamId = $user->currentTeamId();
+            if ($teamId) {
+                $member = \App\Models\TeamMember::where('team_id', $teamId)
+                    ->where('user_id', $user->id)
+                    ->first();
+                $teamRole = $member?->role;
+            }
+        }
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
@@ -46,13 +58,14 @@ class HandleInertiaRequests extends Middleware
             'dark_logo' => $setting?->dark_logo,
             'auth' => [
                 'user' => $request->user(),
+                'teamRole' => $teamRole,
             ],
             'flash' => [
                 'success' => fn() => $request->session()->get('success'),
-                'error' => fn() => $request->session()->get('error'),
+                'error'   => fn() => $request->session()->get('error'),
                 'warning' => fn() => $request->session()->get('warning'),
-                'info' => fn() => $request->session()->get('info'),
-                'toast' => fn() => $request->session()->get('toast'),
+                'info'    => fn() => $request->session()->get('info'),
+                'toast'   => fn() => $request->session()->get('toast'),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

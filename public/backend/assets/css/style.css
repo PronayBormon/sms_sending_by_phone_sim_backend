@@ -4272,7 +4272,7 @@ textarea.form-control.is-invalid {
 }
 
 .btn:hover {
-  color: var(--bs-btn-hover-color);
+  color:  #fff;
   background-color: var(--bs-btn-hover-bg);
   border-color: var(--bs-btn-hover-border-color);
 }
@@ -4416,7 +4416,7 @@ fieldset:disabled .btn {
 }
 
 .btn-danger {
-  --bs-btn-color: #000;
+  --bs-btn-color: #fff;
   --bs-btn-bg: #e74c3c;
   --bs-btn-border-color: #e74c3c;
   --bs-btn-hover-color: #000;
@@ -25715,4 +25715,11 @@ Dark Mode SCSS
 
 [data-theme="dark"] .custom-card {
   box-shadow: 1px 0px 15px 3px #219e4e82;
+}
+
+[data-theme=white] .card {
+  border-color: #fff !important;
+}
+.card {
+  border-color: #fff !important;
 }

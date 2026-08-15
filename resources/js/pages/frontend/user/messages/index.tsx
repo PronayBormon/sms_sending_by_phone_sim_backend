@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import UserLayout from '@/layouts/user-layout';
 import { Head, Link, router } from '@inertiajs/react';
-import { Search, Filter } from 'lucide-react';
+import { Search, Filter, Eye } from 'lucide-react';
 
 interface SmsLog {
     id: number;
     recipient: string;
-    campaign: { title: string } | null;
+    campaign: { campaign_name: string, id: string } | null;
     message: string;
     device: { name: string } | null;
     sim_slot: string;
@@ -115,16 +115,22 @@ export default function Messages({ messages, filters }: Props) {
                                     <th className="py-3">Status</th>
                                     <th className="py-3">Sent At</th>
                                     <th className="px-4 py-3">Delivered At</th>
+                                    <th className="px-4 py-3 text-end">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {messages.data.map(m => (
-                                    <tr key={m.id} onClick={() => router.visit(`/user/messages/${m.id}`)} style={{ cursor: 'pointer' }}>
+                                    <tr key={m.id}>
                                         <td className="px-4">
                                             <div className="fw-medium">{m.recipient}</div>
                                             <small className="text-muted font-monospace">SMS-{m.id}</small>
                                         </td>
-                                        <td>{m.campaign?.title || '—'}</td>
+                                        <td>
+                                            <Link href={"/user/campaigns/" + m.campaign?.id} target='_blank'>
+                                                {m.campaign?.campaign_name || '—'}
+                                            </Link>
+
+                                        </td>
                                         <td style={{ maxWidth: '200px' }}>
                                             <div className="text-truncate text-muted small">{m.message}</div>
                                         </td>
@@ -133,6 +139,11 @@ export default function Messages({ messages, filters }: Props) {
                                         <td>{statusBadge(m.status)}</td>
                                         <td className="font-monospace small text-muted">{m.sent_at ? new Date(m.sent_at).toLocaleString() : '—'}</td>
                                         <td className="px-4 font-monospace small text-muted">{m.delivered_at ? new Date(m.delivered_at).toLocaleString() : '—'}</td>
+                                        <td className="px-4 text-end">
+                                            <Link href={`/user/messages/${m.id}`} className="btn btn-sm btn-light text-primary p-2" title="View">
+                                                <Eye size={16} />
+                                            </Link>
+                                        </td>
                                     </tr>
                                 ))}
                                 {messages.data.length === 0 && (

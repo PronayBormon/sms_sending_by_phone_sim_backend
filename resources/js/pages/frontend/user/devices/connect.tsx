@@ -1,10 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import UserLayout from '@/layouts/user-layout';
 import { Head, Link } from '@inertiajs/react';
 import { ArrowLeft, RefreshCw, Smartphone, Download, QrCode, Wifi } from 'lucide-react';
+import QRCode from "react-qr-code";
 
-export default function ConnectDevice() {
-    const [seconds, setSeconds] = useState(582); // 9:42
+export default function ConnectDevice({ token, expiresAt }: any) {
+
+    console.log(token, expiresAt);
+
+    const expiresIn = useMemo(() => {
+        const now = Date.now();
+        const expires = new Date(expiresAt).getTime();
+        return Math.floor((expires - now) / 1000);
+    }, [expiresAt]);
+
+    const [seconds, setSeconds] = useState(expiresIn);
+    const [QRToken, setQR] = useState(token);
+
+    const [QRLink, setQRLink] = useState('/storage/gateway.apk');
+
+
+
+
 
     useEffect(() => {
         const t = setInterval(() => setSeconds(s => Math.max(0, s - 1)), 1000);
@@ -58,22 +75,11 @@ export default function ConnectDevice() {
                         <div className="card-body p-5 d-flex flex-column align-items-center text-center">
 
                             <div className="border border-2 rounded-4 d-flex align-items-center justify-content-center mb-4 bg-white" style={{ width: 200, height: 200, padding: 10 }}>
-                                <svg width="100%" height="100%" viewBox="0 0 160 160">
-                                    {Array.from({ length: 21 }).map((_, r) =>
-                                        Array.from({ length: 21 }).map((_, c) => {
-                                            const isCorner = (r < 7 && c < 7) || (r < 7 && c > 13) || (r > 13 && c < 7);
-                                            const inCornerInner = (r >= 1 && r <= 5 && c >= 1 && c <= 5) || (r >= 1 && r <= 5 && c >= 15 && c <= 19) || (r >= 15 && r <= 19 && c >= 1 && c <= 5);
-                                            const inCornerCenter = (r >= 2 && r <= 4 && c >= 2 && c <= 4) || (r >= 2 && r <= 4 && c >= 16 && c <= 18) || (r >= 16 && r <= 18 && c >= 2 && c <= 4);
-                                            const rng = Math.sin(r * 31 + c * 17 + r * c) > 0.2;
-                                            const fill = isCorner ? (inCornerInner ? (inCornerCenter ? '#000' : '#fff') : '#000') : (rng ? '#000' : '#fff');
-                                            return <rect key={`${r}-${c}`} x={r * 7.6 + 0.4} y={c * 7.6 + 0.4} width={7} height={7} fill={fill} />;
-                                        })
-                                    )}
-                                </svg>
+                                <QRCode value={QRToken} size={180} />
                             </div>
 
                             <p className="text-muted fw-bold small text-uppercase mb-1">Gateway Pairing Code</p>
-                            <h3 className="fw-bold font-monospace mb-4 tracking-wider">A7F3-91KD</h3>
+                            <h3 className="fw-bold font-monospace mb-4 tracking-wider">{QRToken}</h3>
 
                             <div className="d-flex align-items-center gap-2 small text-muted mb-2">
                                 <span>Expires in</span>
@@ -81,10 +87,14 @@ export default function ConnectDevice() {
                                     {mins}:{secs}
                                 </span>
                             </div>
-
-                            <button className="btn btn-outline-secondary btn-sm rounded-pill px-3 mb-5 d-flex align-items-center gap-2">
-                                <RefreshCw size={14} /> Regenerate Code
-                            </button>
+<button
+    type="button"
+    onClick={() => window.location.reload()}
+    className="btn btn-outline-secondary btn-sm rounded-pill px-3 mb-5 d-flex align-items-center gap-2"
+>
+    <RefreshCw size={14} />
+    Regenerate Code
+</button>
 
                             {/* Waiting indicator */}
                             <div className="bg-light rounded-4 p-3 w-100">

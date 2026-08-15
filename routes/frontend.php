@@ -100,6 +100,8 @@ Route::middleware(['auth:sanctum'])->prefix('user')->group(function () {
 
         // Devices / SIM
         Route::post('/devices/demo',        [UserDeviceController::class, 'storeDemoDevice'])->name('devices.storeDemoDevice');
+        Route::delete('/devices/{device}',  [UserDeviceController::class, 'destroy'])->name('devices.destroy');
+        Route::post('/sim-cards/{id}/toggle', [UserDeviceController::class, 'toggleSim'])->name('simcards.toggle');
         // User Profile updates\n        Route::patch('/profile', [\App\Http\Controllers\User\UserProfileController::class, 'update'])->name('profile.update');\n        Route::patch('/password', [\App\Http\Controllers\User\UserProfileController::class, 'updatePassword'])->name('profile.updatePassword');
     });
 });

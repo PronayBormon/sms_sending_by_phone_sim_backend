@@ -21,44 +21,15 @@ class DeviceGatewayController extends Controller
 {
     use ApiResponse;
 
-    public function storeDeviceId(Request $request): JsonResponse
+
+    public function storeDevice(Request $request): JsonResponse
     {
-        $userId = Auth::id();
-        $user = User::with(['teams'])->find($userId);
-
-        dd($user);
-
         try {
+            $userId = Auth::id();
+            $teamId = auth()->user()->currentTeamId();
             $data = $request->validate([
-                // 'team_id' => ['required', 'exists:teams,id'],
                 'device_id' => ['required', 'string', 'max:255'],
                 'device_token' => ['required', 'string', 'max:255'],
-                'name' => ['nullable', 'string', 'max:255'],
-            ]);
-
-
-            if (!TeamMember::where('team_id', $data['team_id'])->where('user_id', $request->user()->id)->exists()) {
-                return $this->errorResponse('You are not a member of the selected team.', 403);
-            }
-            $device = Device::updateOrCreate(['device_id' => $data['device_id']], [
-                'team_id' => $data['team_id'],
-                'name' => $data['name'] ?: "Gateway {$data['device_id']}",
-                'device_token' => $data['device_token'],
-                'status' => 'online',
-                'last_seen_at' => now(),
-                'is_active' => true,
-            ]);
-            return $this->successResponse('Firebase device token stored.', $device->only(['id', 'team_id', 'device_id', 'device_token', 'status']));
-        } catch (ValidationException $exception) {
-            return $this->errorResponse('Validation failed.', 422, $exception->errors());
-        }
-    }
-
-    public function storeDeviceInformation(Request $request): JsonResponse
-    {
-        try {
-            $device = $this->device($request);
-            $data = $request->validate([
                 'name' => ['nullable', 'string', 'max:255'],
                 'imei' => ['nullable', 'string', 'max:255'],
                 'manufacturer' => ['nullable', 'string', 'max:255'],
@@ -73,18 +44,102 @@ class DeviceGatewayController extends Controller
                 'sims.*.subscription_id' => ['nullable', 'string', 'max:255'],
                 'sims.*.sim_serial_number' => ['nullable', 'string', 'max:255'],
                 'sims.*.carrier_name' => ['nullable', 'string', 'max:255'],
-                'sims.*.status' => ['nullable', Rule::in(['active', 'inactive', 'no_signal', 'disabled'])],
+                'sims.*.status' => ['nullable', Rule::in(['active', 'inactive', 'no_signal', 'disabled']),],
                 'sims.*.is_enabled' => ['nullable', 'boolean'],
             ]);
-            DB::transaction(function () use ($device, $data) {
-                $device->update(array_merge(collect($data)->except('sims')->filter(fn($value) => $value !== null)->all(), ['status' => 'online', 'last_seen_at' => now()]));
+
+            /*
+        |--------------------------------------------------------------------------
+        | Check Team Membership
+        |--------------------------------------------------------------------------
+        */
+
+            if (!TeamMember::where('team_id', $teamId)
+                ->where('user_id', $userId)
+                ->exists()) {
+                return $this->errorResponse(
+                    'You are not a member of the selected team.',
+                    403
+                );
+            }
+
+            /*
+        |--------------------------------------------------------------------------
+        | Store Device + SIMs
+        |--------------------------------------------------------------------------
+        */
+
+            $device = DB::transaction(function () use ($data, $teamId) {
+
+                $device = Device::updateOrCreate(
+                    [
+                        'device_id' => $data['device_id'],
+                    ],
+                    [
+                        'team_id' => $teamId,
+                        'name' => $data['name']
+                            ?? "Gateway {$data['device_id']}",
+                        'device_token' => $data['device_token'],
+                        'imei' => $data['imei'] ?? null,
+                        'manufacturer' => $data['manufacturer'] ?? null,
+                        'model' => $data['model'] ?? null,
+                        'android_version' => $data['android_version'] ?? null,
+                        'app_version' => $data['app_version'] ?? null,
+                        'status' => 'online',
+                        'last_seen_at' => now(),
+                        'is_active' => true,
+                    ]
+                );
+
+                /*
+            |--------------------------------------------------------------------------
+            | Store SIMs
+            |--------------------------------------------------------------------------
+            */
+
                 foreach ($data['sims'] ?? [] as $sim) {
-                    DeviceSim::updateOrCreate(['device_id' => $device->id, 'slot_number' => $sim['slot_number']], array_merge($sim, ['team_id' => $device->team_id, 'status' => $sim['status'] ?? 'active', 'is_enabled' => $sim['is_enabled'] ?? true]));
+
+                    DeviceSim::updateOrCreate(
+                        [
+                            'device_id' => $device->id,
+                            'slot_number' => $sim['slot_number'],
+                        ],
+                        [
+                            'team_id' => $device->team_id,
+                            'phone_number' => $sim['phone_number'] ?? null,
+                            'operator' => $sim['operator'] ?? null,
+                            'country_code' => $sim['country_code'] ?? null,
+                            'subscription_id' => $sim['subscription_id'] ?? null,
+                            'sim_serial_number' => $sim['sim_serial_number'] ?? null,
+                            'carrier_name' => $sim['carrier_name'] ?? null,
+                            'status' => $sim['status'] ?? 'active',
+                            'is_enabled' => $sim['is_enabled'] ?? true,
+                        ]
+                    );
                 }
+
+                return $device;
             });
-            return $this->successResponse('Device information synchronized.', $device->fresh()->load('sims'));
+
+            /*
+        |--------------------------------------------------------------------------
+        | Response
+        |--------------------------------------------------------------------------
+        */
+
+            return $this->successResponse(
+                'Device and SIM information synchronized.',
+                $device
+                    ->fresh()
+                    ->load('sims')
+            );
         } catch (ValidationException $exception) {
-            return $this->errorResponse('Validation failed.', 422, $exception->errors());
+
+            return $this->errorResponse(
+                'Validation failed.',
+                422,
+                $exception->errors()
+            );
         }
     }
 
@@ -133,8 +188,16 @@ class DeviceGatewayController extends Controller
     private function device(Request $request): Device
     {
         $deviceId = $request->input('device_id');
-        $token = $request->header('X-Device-Token', $request->input('device_token'));
-        abort_unless($deviceId && $token, 401, 'device_id and X-Device-Token are required.');
-        return Device::where('device_id', $deviceId)->where('device_token', $token)->firstOrFail();
+        $deviceToken = $request->input('device_token');
+
+        if (!$deviceId || !$deviceToken) {
+            throw new \Exception('device_id and device_token are required.', 401);
+        }
+
+        $device = Device::where('device_id', $deviceId)
+            ->where('device_token', $deviceToken)
+            ->firstOrFail();
+
+        return $device;
     }
 }

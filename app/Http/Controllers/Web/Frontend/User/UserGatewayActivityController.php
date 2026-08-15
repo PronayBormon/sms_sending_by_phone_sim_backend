@@ -11,7 +11,7 @@ class UserGatewayActivityController extends Controller
     public function index()
     {
         $teamId = auth()->user()->currentTeamId();
-        $logs = SmsLog::with(['campaign:id,title', 'device:id,name'])
+        $logs = SmsLog::with(['campaign:id,campaign_name', 'device:id,name'])
             ->where('team_id', $teamId)
             ->orderBy('created_at', 'desc')
             ->paginate(50)

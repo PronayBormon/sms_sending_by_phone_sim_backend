@@ -9,6 +9,8 @@ Route::controller(AuthApiController::class)->prefix('auth')->middleware('throttl
     Route::post('register', 'register');
     Route::post('verify/register', 'verifyRegister');
     Route::post('login', 'login');
+    Route::post('qr/verify', 'verifyQrToken');
+    
     Route::post('login/two-factor', 'twoFactorLogin');
     Route::post('logout', 'logout')->middleware('auth:sanctum');
     Route::post('forgetpass', 'forgotPassword');

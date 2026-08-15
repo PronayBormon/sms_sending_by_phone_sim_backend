@@ -10,7 +10,10 @@ class DashboardController extends Controller
 {
     public function home(Request $request)
     {
-        return Inertia::render('frontend/home/index');
+        $faqs = \App\Models\Faq::active()->orderBy('sort_order')->get();
+        return Inertia::render('frontend/home/index', [
+            'faqs' => $faqs
+        ]);
     }
 
     public function index(Request $request)

@@ -141,3 +141,16 @@
         @apply bg-background text-foreground;
     }
 }
+
+
+
+[data-theme="dark"] .custom-card {
+  box-shadow: 1px 0px 15px 3px #219e4e82;
+}
+
+[data-theme=white] .card {
+  border-color: #fff !important;
+}
+.card {
+  border-color: #fff !important;
+}

@@ -13,16 +13,16 @@ class UserSmsLogController extends Controller
     {
         $teamId = auth()->user()->currentTeamId();
 
-        $query = SmsLog::with(['campaign:id,title', 'device:id,name'])
+        $query = SmsLog::with(['campaign:id,campaign_name', 'device:id,name'])
             ->where('team_id', $teamId);
 
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('recipient', 'like', "%{$search}%")
-                  ->orWhereHas('campaign', function ($q2) use ($search) {
-                      $q2->where('title', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('campaign', function ($q2) use ($search) {
+                        $q2->where('campaign_name', 'like', "%{$search}%");
+                    });
             });
         }
 

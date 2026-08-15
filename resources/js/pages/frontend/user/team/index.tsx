@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import UserLayout from '@/layouts/user-layout';
-import { Head, useForm, router } from '@inertiajs/react';
+import { Head, Link, useForm, router } from '@inertiajs/react';
+import { confirmAction } from '@/utils/confirm';
+import { Search, Filter, Pencil, Trash } from 'lucide-react';
 
 interface User {
     id: number;
@@ -29,7 +31,13 @@ interface ActivityLog {
 
 interface Props {
     members: Member[];
-    activityLogs: ActivityLog[];
+    activityLogs: {
+        data: ActivityLog[];
+        current_page: number;
+        last_page: number;
+        total: number;
+        links: { url: string | null; label: string; active: boolean }[];
+    };
 }
 
 const roleColors: Record<string, string> = {
@@ -110,9 +118,10 @@ export default function Index({ members, activityLogs }: Props) {
         });
     };
 
-    const handleRemove = (member: any) => {
+    const handleRemove = async (member: any) => {
         const msg = member.is_invite ? 'Are you sure you want to cancel this invitation?' : 'Are you sure you want to remove this member?';
-        if (confirm(msg)) {
+        const ok = await confirmAction({ text: msg, confirmText: 'Yes, proceed' });
+        if (ok) {
             router.delete(`/user/team/member/${member.id}`, { 
                 data: { is_invite: member.is_invite },
                 preserveScroll: true 
@@ -205,16 +214,16 @@ export default function Index({ members, activityLogs }: Props) {
                                                 ) : (
                                                     <div className="d-flex gap-2 justify-content-end">
                                                         <button
-                                                            className="btn btn-sm btn-light"
+                                                            className="btn btn-sm btn-light text-primary p-2"
                                                             onClick={() => setEditingRoleId(member.id)}
                                                         >
-                                                            Edit Role
+                                                            <Pencil size={"16px"}/>
                                                         </button>
                                                         <button
-                                                            className="btn btn-sm btn-link text-danger text-decoration-none"
+                                                            className="btn btn-sm btn-light text-danger p-2"
                                                             onClick={() => handleRemove(member)}
                                                         >
-                                                            Remove
+                                                            <Trash size={"16px"}/>
                                                         </button>
                                                     </div>
                                                 )}
@@ -229,13 +238,16 @@ export default function Index({ members, activityLogs }: Props) {
             </div>
 
             {/* Activity Log */}
-            {activityLogs.length > 0 && (
+            {activityLogs.total > 0 && (
                 <div className="card border-0 shadow-sm rounded-4">
+                    <div className="card-header bg-white border-bottom p-4 d-flex justify-content-between align-items-center">
+                        <h5 className="fw-bold mb-0">Recent Team Activity</h5>
+                        <small className="text-muted">{activityLogs.total} total events</small>
+                    </div>
                     <div className="card-body p-4">
-                        <h5 className="fw-bold mb-4">Recent Team Activity</h5>
                         <div className="d-flex flex-column gap-3">
-                            {activityLogs.map((log) => (
-                                <div key={log.id} className="d-flex justify-content-between align-items-start">
+                            {activityLogs.data.map((log) => (
+                                <div key={log.id} className="d-flex justify-content-between align-items-start pb-3 border-bottom">
                                     <div>
                                         <span className="fw-semibold">{log.user ? `${log.user.first_name} ${log.user.last_name}` : 'System'}</span>
                                         <span className="text-muted ms-2">{log.action} <span className="fw-medium">"{log.subject}"</span></span>
@@ -245,6 +257,24 @@ export default function Index({ members, activityLogs }: Props) {
                             ))}
                         </div>
                     </div>
+                    {activityLogs.last_page > 1 && (
+                        <div className="card-footer bg-white border-top p-3">
+                            <div className="d-flex align-items-center justify-content-between">
+                                <small className="text-muted">Page {activityLogs.current_page} of {activityLogs.last_page}</small>
+                                <ul className="pagination pagination-sm mb-0">
+                                    {activityLogs.links.map((link, index) => (
+                                        <li key={index} className={`page-item ${link.active ? 'active' : ''} ${!link.url ? 'disabled' : ''}`}>
+                                            <Link
+                                                className="page-link"
+                                                href={link.url || '#'}
+                                                dangerouslySetInnerHTML={{ __html: link.label }}
+                                            />
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
 

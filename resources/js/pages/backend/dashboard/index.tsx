@@ -9,7 +9,7 @@ export default function Dashboard() {
             <div className="main-content-container overflow-hidden">
                 <div className="row">
                     <div className="col-lg-6">
-                        <div className="card bg-white p-20 rounded-10 border border-white mb-4">
+                        <div className="card  p-20 rounded-10 border border-white mb-4">
                             <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
                                 <h3>
                                     Total Sales
@@ -18,7 +18,7 @@ export default function Dashboard() {
                                     <button aria-expanded="false" className="dropdown-toggle bg-transparent text-secondary fs-15" data-bs-toggle="dropdown">
                                         Year 2025
                                     </button>
-                                    <ul className="dropdown-menu dropdown-menu-end bg-white border-0 box-shadow rounded-10" data-simplebar="">
+                                    <ul className="dropdown-menu dropdown-menu-end  border-0 box-shadow rounded-10" data-simplebar="">
                                         <li>
                                             <button className="dropdown-item text-secondary">
                                                 Year 2025
@@ -73,7 +73,7 @@ export default function Dashboard() {
                     <div className="col-lg-6 col-xxl-3 col-xxxl-6">
                         <div className="row">
                             <div className="col-md-6 col-lg-12">
-                                <div className="card bg-white p-20 rounded-10 border border-white mb-4">
+                                <div className="card  p-20 rounded-10 border border-white mb-4">
                                     <div className="d-flex">
                                         <div className="flex-grow-1">
                                             <h3 className="mb-10">
@@ -107,7 +107,7 @@ export default function Dashboard() {
                                 </div>
                             </div>
                             <div className="col-md-6 col-lg-12">
-                                <div className="card bg-white p-20 rounded-10 border border-white mb-4">
+                                <div className="card  p-20 rounded-10 border border-white mb-4">
                                     <div className="d-flex">
                                         <div className="flex-grow-1">
                                             <h3 className="mb-10">
@@ -145,7 +145,7 @@ export default function Dashboard() {
                     <div className="col-xl-12 col-xxl-3 col-xxxl-12">
                         <div className="row">
                             <div className="col-md-6 col-xxxl-6 col-xxl-12">
-                                <div className="card bg-white p-20 rounded-10 border border-white mb-4">
+                                <div className="card  p-20 rounded-10 border border-white mb-4">
                                     <div className="d-flex">
                                         <div className="flex-grow-1">
                                             <h3 className="mb-10">
@@ -210,7 +210,7 @@ export default function Dashboard() {
                                         </div>
                                     </div>
                                     {/* <div aria-label="Basic example" aria-valuemax="100" aria-valuemin="0" aria-valuenow="80" className="progress rounded-0 mb-6" role="progressbar" style={{ height: "3px", backgroundColor: "#6258cc" }}>
-                                            <div className="progress-bar rounded-0 bg-white" style={{ width: "80%", height: "3px" }}>
+                                            <div className="progress-bar rounded-0 " style={{ width: "80%", height: "3px" }}>
                                             </div>
                                         </div> */}
                                     <span className="fs-14 text-white d-block" style={{ marginBottom: "-6px" }}>
@@ -225,7 +225,7 @@ export default function Dashboard() {
                     <div className="col-xxl-6 col-xxxl-12">
                         <div className="row">
                             <div className="col-lg-6">
-                                <div className="card bg-white p-20 rounded-10 border border-white mb-4">
+                                <div className="card  p-20 rounded-10 border border-white mb-4">
                                     <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-20">
                                         <h3>
                                             Profit
@@ -234,7 +234,7 @@ export default function Dashboard() {
                                             <button aria-expanded="false" className="dropdown-toggle bg-transparent text-secondary fs-15" data-bs-toggle="dropdown">
                                                 Action
                                             </button>
-                                            <ul className="dropdown-menu dropdown-menu-end bg-white border-0 box-shadow rounded-10" data-simplebar="">
+                                            <ul className="dropdown-menu dropdown-menu-end  border-0 box-shadow rounded-10" data-simplebar="">
                                                 <li>
                                                     <button className="dropdown-item text-secondary">
                                                         Export
@@ -274,7 +274,7 @@ export default function Dashboard() {
                                 </div>
                             </div>
                             <div className="col-lg-6">
-                                <div className="card bg-white p-20 rounded-10 border border-white mb-4">
+                                <div className="card  p-20 rounded-10 border border-white mb-4">
                                     <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-20">
                                         <h3>
                                             Average Daily Sales
@@ -340,7 +340,7 @@ export default function Dashboard() {
                                 </div>
                             </div>
                             <div className="col-md-6">
-                                <div className="card p-20 bg-white rounded-10 border border-white mb-4 position-relative z-1">
+                                <div className="card p-20  rounded-10 border border-white mb-4 position-relative z-1">
                                     <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-20">
                                         <h3>New Customers This Month</h3>
 
@@ -433,7 +433,7 @@ export default function Dashboard() {
                         </div>
                     </div>
                     <div className="col-xxl-6 col-xxxl-12">
-                        <div className="card bg-white p-20 rounded-10 border border-white mb-4">
+                        <div className="card  p-20 rounded-10 border border-white mb-4">
                             <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-20">
                                 <h3>
                                     Top Selling Products
@@ -442,7 +442,7 @@ export default function Dashboard() {
                                     <button aria-expanded="false" className="dropdown-toggle bg-transparent text-secondary fs-15" data-bs-toggle="dropdown">
                                         This Week
                                     </button>
-                                    <ul className="dropdown-menu dropdown-menu-end bg-white border-0 box-shadow rounded-10" data-simplebar="">
+                                    <ul className="dropdown-menu dropdown-menu-end  border-0 box-shadow rounded-10" data-simplebar="">
                                         <li>
                                             <button className="dropdown-item text-secondary">
                                                 This Day
@@ -673,7 +673,7 @@ export default function Dashboard() {
                 </div>
                 {/* <div className="row">
                     <div className="col-lg-6 col-xxl-4 col-xxxl-6 mb-4">
-                        <div className="card bg-white p-20 rounded-10 border border-white">
+                        <div className="card  p-20 rounded-10 border border-white">
                             <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-20">
                                 <h3>
                                     Order Summary
@@ -682,7 +682,7 @@ export default function Dashboard() {
                                     <button aria-expanded="false" className="dropdown-toggle bg-transparent text-secondary fs-15" data-bs-toggle="dropdown">
                                         This Week
                                     </button>
-                                    <ul className="dropdown-menu dropdown-menu-end bg-white border-0 box-shadow rounded-10" data-simplebar="">
+                                    <ul className="dropdown-menu dropdown-menu-end  border-0 box-shadow rounded-10" data-simplebar="">
                                         <li>
                                             <button className="dropdown-item text-secondary">
                                                 This Day
@@ -722,7 +722,7 @@ export default function Dashboard() {
                         </div>
                     </div>
                     <div className="col-lg-6 col-xxl-4 col-xxxl-6">
-                        <div className="card bg-white p-20 rounded-10 border border-white mb-4">
+                        <div className="card  p-20 rounded-10 border border-white mb-4">
                             <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-20">
                                 <h3>
                                     Top Sellers
@@ -731,7 +731,7 @@ export default function Dashboard() {
                                     <button aria-expanded="false" className="dropdown-toggle bg-transparent text-secondary fs-15" data-bs-toggle="dropdown">
                                         This Week
                                     </button>
-                                    <ul className="dropdown-menu dropdown-menu-end bg-white border-0 box-shadow rounded-10" data-simplebar="">
+                                    <ul className="dropdown-menu dropdown-menu-end  border-0 box-shadow rounded-10" data-simplebar="">
                                         <li>
                                             <button className="dropdown-item text-secondary">
                                                 This Day
@@ -1062,7 +1062,7 @@ export default function Dashboard() {
                     <div className="col-lg-12 col-xxl-4 col-xxxl-12">
                         <div className="row">
                             <div className="col-xxl-12 col-lg-6 col-xxxl-6">
-                                <div className="card bg-white p-20 rounded-10 border border-white mb-4">
+                                <div className="card  p-20 rounded-10 border border-white mb-4">
                                     <h3 className="mb-20">
                                         Top Sales Locations
                                     </h3>
@@ -1135,7 +1135,7 @@ export default function Dashboard() {
                                 </div>
                             </div>
                             <div className="col-xxl-12 col-lg-6 col-xxxl-6">
-                                <div className="card bg-white p-20 rounded-10 border border border-white mb-4">
+                                <div className="card  p-20 rounded-10 border border border-white mb-4">
                                     <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-0">
                                         <h3>
                                             Revenue
@@ -1144,7 +1144,7 @@ export default function Dashboard() {
                                             <button aria-expanded="false" className="dropdown-toggle bg-transparent text-secondary fs-15" data-bs-toggle="dropdown">
                                                 This Week
                                             </button>
-                                            <ul className="dropdown-menu dropdown-menu-end bg-white border-0 box-shadow rounded-10" data-simplebar="">
+                                            <ul className="dropdown-menu dropdown-menu-end  border-0 box-shadow rounded-10" data-simplebar="">
                                                 <li>
                                                     <button className="dropdown-item text-secondary">
                                                         This Day
@@ -1177,7 +1177,7 @@ export default function Dashboard() {
                 </div>
                 <div className="row">
                     <div className="col-xxl-8 col-xxxxl-12">
-                        <div className="card bg-white rounded-10 border border-white mb-4">
+                        <div className="card  rounded-10 border border-white mb-4">
                             <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 p-20">
                                 <h3>
                                     Recent Orders
@@ -1187,7 +1187,7 @@ export default function Dashboard() {
                                         <button aria-expanded="false" className="dropdown-toggle bg-transparent text-secondary fs-15" data-bs-toggle="dropdown">
                                             Show All
                                         </button>
-                                        <ul className="dropdown-menu dropdown-menu-end bg-white border-0 box-shadow rounded-10" data-simplebar="">
+                                        <ul className="dropdown-menu dropdown-menu-end  border-0 box-shadow rounded-10" data-simplebar="">
                                             <li>
                                                 <button className="dropdown-item text-secondary">
                                                     Shipped
@@ -1519,7 +1519,7 @@ export default function Dashboard() {
                         </div>
                     </div>
                     <div className="col-xxl-4 col-xxxxl-12">
-                        <div className="card bg-white p-20 rounded-10 border border-white mb-4">
+                        <div className="card  p-20 rounded-10 border border-white mb-4">
                             <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-20">
                                 <h3>
                                     Transactions History
@@ -1528,7 +1528,7 @@ export default function Dashboard() {
                                     <button aria-expanded="false" className="dropdown-toggle bg-transparent text-secondary fs-15" data-bs-toggle="dropdown">
                                         Last Month
                                     </button>
-                                    <ul className="dropdown-menu dropdown-menu-end bg-white border-0 box-shadow rounded-10" data-simplebar="">
+                                    <ul className="dropdown-menu dropdown-menu-end  border-0 box-shadow rounded-10" data-simplebar="">
                                         <li>
                                             <button className="dropdown-item text-secondary">
                                                 Last Day

@@ -2,6 +2,8 @@ import React from 'react';
 import UserLayout from '@/layouts/user-layout';
 import { Head, Link, router } from '@inertiajs/react';
 import { Users, Eye, Edit2, Trash2, Plus, Folder, UserCheck, Crown, Mail, UserX, Calendar } from 'lucide-react';
+import { confirmAction } from '@/utils/confirm';
+import { useIsViewer } from '@/hooks/useRole';
 
 interface ContactList {
     id: number;
@@ -45,11 +47,12 @@ const getTheme = (index: number, name: string) => {
 };
 
 export default function Index({ lists }: Props) {
-    const handleDelete = (id: number, e: React.MouseEvent) => {
+    const isViewer = useIsViewer();
+
+    const handleDelete = async (id: number, e: React.MouseEvent) => {
         e.stopPropagation();
-        if (confirm('Are you sure you want to delete this contact list? All list mappings will be removed.')) {
-            router.delete(`/user/lists/${id}`);
-        }
+        const ok = await confirmAction({ text: 'This contact list and all its mappings will be permanently removed.', confirmText: 'Yes, delete it' });
+        if (ok) router.delete(`/user/lists/${id}`);
     };
 
     return (
@@ -61,9 +64,11 @@ export default function Index({ lists }: Props) {
                     <h4 className="fw-bold mb-1">Contact Lists</h4>
                     <p className="text-muted small mb-0">Group and manage your audiences</p>
                 </div>
-                <Link href="/user/lists/create" className="btn btn-primary text-white rounded-3 d-flex align-items-center gap-2">
-                    <Plus size={16} /> Create List
-                </Link>
+                {!isViewer && (
+                    <Link href="/user/lists/create" className="btn btn-primary text-white rounded-3 d-flex align-items-center gap-2">
+                        <Plus size={16} /> Create List
+                    </Link>
+                )}
             </div>
 
             <div className="row g-4 mb-4">
@@ -90,19 +95,23 @@ export default function Index({ lists }: Props) {
                                             >
                                                 <Eye size={14} />
                                             </Link>
-                                            <Link 
-                                                href={`/user/lists/${list.id}/edit`} 
-                                                className="btn btn-light btn-sm rounded-circle p-1.5 text-muted hover-primary"
-                                                onClick={e => e.stopPropagation()}
-                                            >
-                                                <Edit2 size={14} />
-                                            </Link>
-                                            <button 
-                                                onClick={e => handleDelete(list.id, e)} 
-                                                className="btn btn-light btn-sm rounded-circle p-1.5 text-muted hover-danger"
-                                            >
-                                                <Trash2 size={14} />
-                                            </button>
+                                            {!isViewer && (
+                                                <Link 
+                                                    href={`/user/lists/${list.id}/edit`} 
+                                                    className="btn btn-light btn-sm rounded-circle p-1.5 text-muted hover-primary"
+                                                    onClick={e => e.stopPropagation()}
+                                                >
+                                                    <Edit2 size={14} />
+                                                </Link>
+                                            )}
+                                            {!isViewer && (
+                                                <button 
+                                                    onClick={(e) => handleDelete(list.id, e)}
+                                                    className="btn btn-light btn-sm rounded-circle p-1.5 text-danger hover-danger"
+                                                >
+                                                    <Trash2 size={14} />
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
 

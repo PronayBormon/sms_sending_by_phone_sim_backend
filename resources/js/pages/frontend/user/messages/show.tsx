@@ -34,7 +34,7 @@ export default function MessageDetails({ messageLog }: { messageLog: SmsLog }) {
             <Head title="Message Details" />
 
             <div className="d-flex align-items-center gap-3 mb-4">
-                <Link href={route('messages.index')} className="btn btn-light rounded-circle p-2 d-flex align-items-center justify-content-center" style={{ width: 40, height: 40 }}>
+                <Link href={'/user/messages'} className="btn btn-light rounded-circle p-2 d-flex align-items-center justify-content-center" style={{ width: 40, height: 40 }}>
                     <ArrowLeft size={18} className="text-muted" />
                 </Link>
                 <h4 className="mb-0 fw-bold">Message Details</h4>

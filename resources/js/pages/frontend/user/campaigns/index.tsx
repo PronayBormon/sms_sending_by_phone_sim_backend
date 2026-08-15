@@ -1,6 +1,9 @@
 import React from 'react';
 import UserLayout from '@/layouts/user-layout';
 import { Head, Link, useForm } from '@inertiajs/react';
+import { Eye, Edit2, Trash2 } from 'lucide-react';
+import { confirmAction } from '@/utils/confirm';
+import { useIsViewer } from '@/hooks/useRole';
 
 interface Campaign {
     id: number;
@@ -31,12 +34,12 @@ const statusColors: Record<string, string> = {
 };
 
 export default function Index({ campaigns }: Props) {
+    const isViewer = useIsViewer();
     const { delete: destroy } = useForm();
 
-    const handleDelete = (id: number) => {
-        if (confirm('Are you sure you want to delete this campaign?')) {
-            destroy('/user/campaigns/' + id);
-        }
+    const handleDelete = async (id: number) => {
+        const ok = await confirmAction({ text: 'This campaign and its data will be permanently deleted.', confirmText: 'Yes, delete it' });
+        if (ok) destroy('/user/campaigns/' + id);
     };
 
     return (
@@ -86,8 +89,21 @@ export default function Index({ campaigns }: Props) {
                                             <td className="text-capitalize">{campaign.schedule_type}</td>
                                             <td className="text-muted">{new Date(campaign.created_at).toLocaleDateString()}</td>
                                             <td className="px-4 text-end">
-                                                <Link href={'/user/campaigns/' + campaign.id + '/edit'} className="btn btn-sm btn-light me-2">Edit</Link>
-                                                <button onClick={() => handleDelete(campaign.id)} className="btn btn-sm btn-outline-danger">Delete</button>
+                                                <div className="d-flex align-items-center justify-content-end gap-1">
+                                                    <Link href={`/user/campaigns/${campaign.id}`} className="btn btn-sm btn-light text-primary p-2" title="View">
+                                                        <Eye size={16} />
+                                                    </Link>
+                                                    {!isViewer && (
+                                                        <Link href={`/user/campaigns/${campaign.id}/edit`} className="btn btn-sm btn-light text-muted p-2" title="Edit">
+                                                            <Edit2 size={16} />
+                                                        </Link>
+                                                    )}
+                                                    {!isViewer && (
+                                                        <button onClick={() => handleDelete(campaign.id)} className="btn btn-sm btn-light text-danger p-2" title="Delete">
+                                                            <Trash2 size={16} />
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </td>
                                         </tr>
                                     ))

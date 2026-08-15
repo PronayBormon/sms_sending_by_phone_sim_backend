@@ -1,6 +1,9 @@
 import React from 'react';
 import UserLayout from '@/layouts/user-layout';
 import { Head, Link, useForm } from '@inertiajs/react';
+import { Edit2, Trash2 } from 'lucide-react';
+import { confirmAction } from '@/utils/confirm';
+import { useIsViewer } from '@/hooks/useRole';
 
 interface Template {
     id: number;
@@ -22,12 +25,12 @@ interface Props {
 }
 
 export default function Index({ templates }: Props) {
+    const isViewer = useIsViewer();
     const { delete: destroy } = useForm();
 
-    const handleDelete = (id: number) => {
-        if (confirm('Are you sure you want to delete this template?')) {
-            destroy(`/user/templates/${id}`);
-        }
+    const handleDelete = async (id: number) => {
+        const ok = await confirmAction({ text: 'This template will be permanently deleted.', confirmText: 'Yes, delete it' });
+        if (ok) destroy(`/user/templates/${id}`);
     };
 
     return (
@@ -75,8 +78,19 @@ export default function Index({ templates }: Props) {
                                                 {template.message.substring(0, 60)}{template.message.length > 60 ? '...' : ''}
                                             </td>
                                             <td className="px-4 text-end">
-                                                <Link href={`/user/templates/${template.id}/edit`} className="btn btn-sm btn-light me-2">Edit</Link>
-                                                <button onClick={() => handleDelete(template.id)} className="btn btn-sm btn-outline-danger">Delete</button>
+                                                <div className="d-flex align-items-center justify-content-end gap-1">
+                                                    {!isViewer && (
+                                                        <Link href={`/user/templates/${template.id}/edit`} className="btn btn-sm btn-light text-muted p-2" title="Edit">
+                                                            <Edit2 size={16} />
+                                                        </Link>
+                                                    )}
+                                                    {!isViewer && (
+                                                        <button onClick={() => handleDelete(template.id)} className="btn btn-sm btn-light text-danger p-2" title="Delete">
+                                                            <Trash2 size={16} />
+                                                        </button>
+                                                    )}
+                                                    {isViewer && <span className="text-muted small fst-italic">Read only</span>}
+                                                </div>
                                             </td>
                                         </tr>
                                     ))

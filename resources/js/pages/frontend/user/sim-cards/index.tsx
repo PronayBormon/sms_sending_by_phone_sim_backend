@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import UserLayout from '@/layouts/user-layout';
 import { Head, Link, router } from '@inertiajs/react';
 import { Smartphone, Signal, WifiOff, CircleSlash, Check, ToggleRight, ToggleLeft } from 'lucide-react';
+import { confirmAction } from '@/utils/confirm';
+import { useIsViewer } from '@/hooks/useRole';
 
 interface DeviceSim {
     id: number;
@@ -43,11 +45,16 @@ const statusConfig: Record<string, { label: string; cls: string; icon: React.Rea
 };
 
 export default function SimCards({ sims }: Props) {
-    const handleToggle = (sim: DeviceSim) => {
+    const isViewer = useIsViewer();
+    const handleToggle = async (sim: DeviceSim) => {
         const action = sim.is_enabled ? 'disable' : 'enable';
-        if (confirm(`${action === 'enable' ? 'Enable' : 'Disable'} SIM ${sim.slot_number} on ${sim.device?.name}?`)) {
-            router.post(`/user/sim-cards/${sim.id}/toggle`, {}, { preserveScroll: true });
-        }
+        const ok = await confirmAction({
+            title: `${action === 'enable' ? 'Enable' : 'Disable'} SIM?`,
+            text: `SIM ${sim.slot_number} on ${sim.device?.name} will be ${action}d.`,
+            confirmText: `Yes, ${action} it`,
+            icon: action === 'disable' ? 'warning' : 'question',
+        });
+        if (ok) router.post(`/user/sim-cards/${sim.id}/toggle`, {}, { preserveScroll: true });
     };
 
     const stats = {
@@ -106,7 +113,7 @@ export default function SimCards({ sims }: Props) {
                                     <th className="py-3">Status</th>
                                     <th className="py-3">Total Sent</th>
                                     <th className="py-3">Last Used</th>
-                                    <th className="px-4 py-3 text-end">Toggle</th>
+                                    {!isViewer && <th className="px-4 py-3 text-end">Toggle</th>}
                                 </tr>
                             </thead>
                             <tbody>
@@ -148,17 +155,19 @@ export default function SimCards({ sims }: Props) {
                                             <td className="text-muted small">
                                                 {sim.last_used_at ? new Date(sim.last_used_at).toLocaleDateString() : '—'}
                                             </td>
-                                            <td className="px-4 text-end">
-                                                <button
-                                                    onClick={() => handleToggle(sim)}
-                                                    className={`btn btn-sm ${sim.is_enabled ? 'btn-outline-danger' : 'btn-outline-success'} rounded-3`}
-                                                    title={sim.is_enabled ? 'Disable SIM' : 'Enable SIM'}
-                                                >
-                                                    {sim.is_enabled
-                                                        ? <ToggleLeft size={16} />
-                                                        : <ToggleRight size={16} />}
-                                                </button>
-                                            </td>
+                                            {!isViewer && (
+                                                <td className="px-4 text-end">
+                                                    <button
+                                                        onClick={() => handleToggle(sim)}
+                                                        className={`btn btn-sm ${sim.is_enabled ? 'btn-outline-danger' : 'btn-outline-success'} rounded-3`}
+                                                        title={sim.is_enabled ? 'Disable SIM' : 'Enable SIM'}
+                                                    >
+                                                        {sim.is_enabled
+                                                            ? <ToggleLeft size={16} />
+                                                            : <ToggleRight size={16} />}
+                                                    </button>
+                                                </td>
+                                            )}
                                         </tr>
                                     );
                                 })}

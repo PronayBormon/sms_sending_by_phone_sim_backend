@@ -1,7 +1,9 @@
 import React from 'react';
 import UserLayout from '@/layouts/user-layout';
 import { Head, Link, router } from '@inertiajs/react';
-import { Clock, Edit2, Play, X } from 'lucide-react';
+import { Clock, Edit2, Play, X, Eye } from 'lucide-react';
+import { confirmAction } from '@/utils/confirm';
+import { useIsViewer } from '@/hooks/useRole';
 
 interface Campaign {
     id: number;
@@ -25,6 +27,7 @@ interface Props {
 }
 
 export default function Scheduled({ scheduled }: Props) {
+    const isViewer = useIsViewer();
     return (
         <UserLayout title="Scheduled Campaigns">
             <Head title="Scheduled Campaigns" />
@@ -71,23 +74,29 @@ export default function Scheduled({ scheduled }: Props) {
                                         </td>
                                         <td className="px-4 text-end">
                                             <div className="d-flex align-items-center justify-content-end gap-1">
-                                                <Link href={`/user/campaigns/${s.id}/edit`} className="btn btn-sm btn-light text-muted d-flex align-items-center justify-content-center p-2" title="Edit">
-                                                    <Edit2 size={13} />
+                                                <Link href={`/user/campaigns/${s.id}`} className="btn btn-sm btn-light text-primary d-flex align-items-center justify-content-center p-2" title="View">
+                                                    <Eye size={13} />
                                                 </Link>
-                                                <button className="btn btn-sm btn-light text-success d-flex align-items-center justify-content-center p-2" title="Run Now">
-                                                    <Play size={13} />
-                                                </button>
-                                                <button 
-                                                    onClick={() => {
-                                                        if (confirm('Cancel this scheduled campaign?')) {
-                                                            router.delete(`/user/campaigns/${s.id}`);
-                                                        }
-                                                    }}
-                                                    className="btn btn-sm btn-light text-danger d-flex align-items-center justify-content-center p-2" 
-                                                    title="Cancel"
-                                                >
-                                                    <X size={13} />
-                                                </button>
+                                                {!isViewer && (
+                                                    <>
+                                                        <Link href={`/user/campaigns/${s.id}/edit`} className="btn btn-sm btn-light text-muted d-flex align-items-center justify-content-center p-2" title="Edit">
+                                                            <Edit2 size={13} />
+                                                        </Link>
+                                                        <button className="btn btn-sm btn-light text-success d-flex align-items-center justify-content-center p-2" title="Run Now">
+                                                            <Play size={13} />
+                                                        </button>
+                                                        <button 
+                                                            onClick={async () => {
+                                                                const ok = await confirmAction({ text: 'This scheduled campaign will be cancelled.', confirmText: 'Yes, cancel it' });
+                                                                if (ok) router.delete(`/user/campaigns/${s.id}`);
+                                                            }}
+                                                            className="btn btn-sm btn-light text-danger d-flex align-items-center justify-content-center p-2" 
+                                                            title="Cancel"
+                                                        >
+                                                            <X size={13} />
+                                                        </button>
+                                                    </>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>

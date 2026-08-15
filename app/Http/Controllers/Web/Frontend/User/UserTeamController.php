@@ -52,11 +52,11 @@ class UserTeamController extends Controller
         $activityLogs = TeamActivityLog::with('user:id,first_name,last_name')
             ->where('team_id', $teamId)
             ->orderBy('created_at', 'desc')
-            ->take(10)
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('frontend/user/team/index', [
-            'members' => $members->concat($pendingInvites),
+            'members'      => $members->concat($pendingInvites),
             'activityLogs' => $activityLogs,
         ]);
     }
