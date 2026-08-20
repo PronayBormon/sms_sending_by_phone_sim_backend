@@ -51,9 +51,9 @@ Route::middleware(['auth:sanctum'])->prefix('user')->group(function () {
     Route::get('/gateway-activity', [UserGatewayActivityController::class, 'index']);
 
     // User Profile routes
-    Route::get('/profile', [UserUserProfileController::class, 'edit'])->name('profile.edit');
-    Route::post('/profile', [UserUserProfileController::class, 'update'])->name('profile.update');
-    Route::post('/password', [UserUserProfileController::class, 'updatepassword'])->name('profile.update');
+    Route::get('/profile', [UserUserProfileController::class, 'edit'])->name('user.profile.edit');
+    Route::post('/profile', [UserUserProfileController::class, 'update'])->name('user.profile.update');
+    Route::post('/password', [UserUserProfileController::class, 'updatepassword'])->name('user.password.update');
     Route::get('/settings', function () {
         return \Inertia\Inertia::render('frontend/user/settings/index');
     });
@@ -94,6 +94,7 @@ Route::middleware(['auth:sanctum'])->prefix('user')->group(function () {
         Route::delete('/templates/{template}', [UserTemplateController::class, 'destroy'])->name('templates.destroy');
 
         // Team management (only owner/admin can invite or change roles)
+        Route::post('/team/create',                    [UserTeamController::class, 'create'])->name('team.create');
         Route::post('/team/invite',                    [UserTeamController::class, 'invite'])->name('team.invite');
         Route::put('/team/member/{member}/role',       [UserTeamController::class, 'updateRole'])->name('team.updateRole');
         Route::delete('/team/member/{member}',         [UserTeamController::class, 'removeMember'])->name('team.removeMember');
@@ -102,7 +103,9 @@ Route::middleware(['auth:sanctum'])->prefix('user')->group(function () {
         Route::post('/devices/demo',        [UserDeviceController::class, 'storeDemoDevice'])->name('devices.storeDemoDevice');
         Route::delete('/devices/{device}',  [UserDeviceController::class, 'destroy'])->name('devices.destroy');
         Route::post('/sim-cards/{id}/toggle', [UserDeviceController::class, 'toggleSim'])->name('simcards.toggle');
-        // User Profile updates\n        Route::patch('/profile', [\App\Http\Controllers\User\UserProfileController::class, 'update'])->name('profile.update');\n        Route::patch('/password', [\App\Http\Controllers\User\UserProfileController::class, 'updatePassword'])->name('profile.updatePassword');
+        // User Profile updates
+        Route::patch('/profile', [\App\Http\Controllers\User\UserProfileController::class, 'update'])->name('user.profile.patch');
+        Route::patch('/password', [\App\Http\Controllers\User\UserProfileController::class, 'updatePassword'])->name('user.password.patch');
     });
 });
 

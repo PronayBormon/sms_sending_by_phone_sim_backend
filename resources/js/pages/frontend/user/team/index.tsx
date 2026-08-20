@@ -31,6 +31,7 @@ interface ActivityLog {
 
 interface Props {
     members: Member[];
+    team_id: string;
     activityLogs: {
         data: ActivityLog[];
         current_page: number;
@@ -41,8 +42,8 @@ interface Props {
 }
 
 const roleColors: Record<string, string> = {
-    owner:  'bg-primary text-white',
-    admin:  'bg-info text-white',
+    owner: 'bg-primary text-white',
+    admin: 'bg-info text-white',
     editor: 'bg-success text-white',
     viewer: 'bg-warning text-dark',
 };
@@ -93,12 +94,30 @@ function getAvatarColor(name: string): string {
     return avatarColors[Math.abs(hash) % avatarColors.length];
 }
 
-export default function Index({ members, activityLogs }: Props) {
+export default function Index({ members, activityLogs, team_id }: Props) {
     const [showInviteModal, setShowInviteModal] = useState(false);
     const [editingRoleId, setEditingRoleId] = useState<number | null>(null);
 
     const inviteForm = useForm({ email: '', role: 'editor' });
     const roleForm = useForm({ role: '' });
+    const [showCreateTeamModal, setShowCreateTeamModal] = useState(false);
+
+    const createTeamForm = useForm({
+        name: '',
+    });
+
+
+    const createTeam = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        createTeamForm.post('/user/team/create', {
+            preserveScroll: true,
+            onSuccess: () => {
+                setShowCreateTeamModal(false);
+                createTeamForm.reset();
+            },
+        });
+    };
 
     const handleInvite = (e: React.FormEvent) => {
         e.preventDefault();
@@ -122,9 +141,9 @@ export default function Index({ members, activityLogs }: Props) {
         const msg = member.is_invite ? 'Are you sure you want to cancel this invitation?' : 'Are you sure you want to remove this member?';
         const ok = await confirmAction({ text: msg, confirmText: 'Yes, proceed' });
         if (ok) {
-            router.delete(`/user/team/member/${member.id}`, { 
+            router.delete(`/user/team/create`, {
                 data: { is_invite: member.is_invite },
-                preserveScroll: true 
+                preserveScroll: true
             });
         }
     };
@@ -138,10 +157,25 @@ export default function Index({ members, activityLogs }: Props) {
                 <div>
                     <p className="text-muted mb-0">{members.length} member{members.length !== 1 ? 's' : ''}</p>
                 </div>
-                <button className="btn btn-primary rounded-3 d-flex align-items-center gap-2" onClick={() => setShowInviteModal(true)}>
-                    <span>+</span> Invite Member
-                </button>
+                {team_id == null ? (
+                    <button
+                        className="btn btn-primary rounded-3 d-flex align-items-center gap-2"
+                        onClick={() => setShowCreateTeamModal(true)}
+                    >
+                        <span>+</span> Create Team
+                    </button>
+                ) : (
+                    <button
+                        className="btn btn-primary rounded-3 d-flex align-items-center gap-2"
+                        onClick={() => setShowInviteModal(true)}
+                    >
+                        <span>+</span> Invite Member
+                    </button>
+                )}
+
             </div>
+
+
 
             {/* Members Table */}
             <div className="card border-0 shadow-sm rounded-4 mb-4">
@@ -217,13 +251,13 @@ export default function Index({ members, activityLogs }: Props) {
                                                             className="btn btn-sm btn-light text-primary p-2"
                                                             onClick={() => setEditingRoleId(member.id)}
                                                         >
-                                                            <Pencil size={"16px"}/>
+                                                            <Pencil size={"16px"} />
                                                         </button>
                                                         <button
                                                             className="btn btn-sm btn-light text-danger p-2"
                                                             onClick={() => handleRemove(member)}
                                                         >
-                                                            <Trash size={"16px"}/>
+                                                            <Trash size={"16px"} />
                                                         </button>
                                                     </div>
                                                 )}
@@ -328,6 +362,97 @@ export default function Index({ members, activityLogs }: Props) {
                     </div>
                 </>
             )}
+
+            {/* Team create modal  */}
+            {showCreateTeamModal && (
+                <>
+                    <div
+                        className="modal-backdrop fade show"
+                        onClick={() => setShowCreateTeamModal(false)}
+                    />
+
+                    <div
+                        className="modal fade show d-block"
+                        tabIndex={-1}
+                        role="dialog"
+                    >
+                        <div className="modal-dialog modal-dialog-centered">
+                            <div className="modal-content border-0 shadow rounded-4">
+
+                                <div className="modal-header">
+                                    <h5 className="modal-title fw-bold">
+                                        Create Team
+                                    </h5>
+
+                                    <button
+                                        type="button"
+                                        className="btn-close"
+                                        onClick={() => setShowCreateTeamModal(false)}
+                                    />
+                                </div>
+
+                                <form onSubmit={createTeam}>
+                                    <div className="modal-body">
+
+                                        <label className="form-label fw-semibold">
+                                            Team Name
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            className={`form-control ${createTeamForm.errors.name
+                                                ? 'is-invalid'
+                                                : ''
+                                                }`}
+                                            placeholder="Enter team name"
+                                            value={createTeamForm.data.name}
+                                            onChange={(e) =>
+                                                createTeamForm.setData(
+                                                    'name',
+                                                    e.target.value
+                                                )
+                                            }
+                                            autoFocus
+                                        />
+
+                                        {createTeamForm.errors.name && (
+                                            <div className="invalid-feedback">
+                                                {createTeamForm.errors.name}
+                                            </div>
+                                        )}
+
+                                    </div>
+
+                                    <div className="modal-footer">
+                                        <button
+                                            type="button"
+                                            className="btn btn-light"
+                                            onClick={() => {
+                                                setShowCreateTeamModal(false);
+                                                createTeamForm.reset();
+                                            }}
+                                        >
+                                            Cancel
+                                        </button>
+
+                                        <button
+                                            type="submit"
+                                            className="btn btn-primary"
+                                            disabled={createTeamForm.processing}
+                                        >
+                                            {createTeamForm.processing
+                                                ? 'Creating...'
+                                                : 'Create Team'}
+                                        </button>
+                                    </div>
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+                </>
+            )}
+
         </UserLayout>
     );
 }

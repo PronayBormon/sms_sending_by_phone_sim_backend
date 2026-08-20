@@ -3,26 +3,28 @@
 namespace App\Http\Controllers\Web\Frontend\User;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
-use App\Models\TeamMember;
-use App\Models\TeamInvite;
-use App\Models\TeamActivityLog;
-use Illuminate\Support\Facades\Mail;
 use App\Mail\TeamInvitationMailable;
+use App\Models\Team;
+use App\Models\TeamActivityLog;
+use App\Models\TeamInvite;
+use App\Models\TeamMember;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
 
 class UserTeamController extends Controller
 {
     public function index()
     {
         $teamId = auth()->user()->currentTeamId();
-        
+
         $members = TeamMember::with('user:id,first_name,last_name,email,avatar')
             ->where('team_id', $teamId)
             ->where('status', 'active')
             ->get()
-            ->map(function($m) {
+            ->map(function ($m) {
                 return [
                     'id' => $m->id,
                     'user' => $m->user,
@@ -37,7 +39,7 @@ class UserTeamController extends Controller
         $pendingInvites = TeamInvite::where('team_id', $teamId)
             ->where('status', 'pending')
             ->get()
-            ->map(function($invite) {
+            ->map(function ($invite) {
                 return [
                     'id' => $invite->id,
                     'user' => null,
@@ -58,8 +60,72 @@ class UserTeamController extends Controller
         return Inertia::render('frontend/user/team/index', [
             'members'      => $members->concat($pendingInvites),
             'activityLogs' => $activityLogs,
+            'team_id' => $teamId,
         ]);
     }
+
+    public function create(Request $request)
+    {
+        $auth = Auth::user();
+
+        // First check active membership by user_id
+        $teamMembership = TeamMember::with('team')
+            ->where('user_id', $auth->id)
+            ->where('status', 'active')
+            ->first();
+
+        // dd($teamMembership);
+
+        // If user_id doesn't exist yet, check invitation by email
+        if (!$teamMembership) {
+            $teamMembership = TeamMember::with('team')
+                ->whereNull('user_id')
+                ->where('invited_email', $auth->email)
+                ->where('status', 'invited')
+                ->first();
+
+            // Attach invitation to the logged-in user
+            if ($teamMembership) {
+                $teamMembership->update([
+                    'user_id' => $auth->id,
+                    'status' => 'active',
+                    'invited_email' => null,
+                ]);
+
+                $teamMembership->refresh();
+                $teamMembership->load('team');
+            }
+        }
+
+        // User already belongs to a team
+        if ($teamMembership) {
+            return response()->json([
+                'message' => 'You already have a team.',
+                'team' => $teamMembership->team,
+            ], 409);
+        }
+
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+        ]);
+
+        // Create new team
+        $team = Team::create([
+            'creator_id' => $auth->id,
+            'team_name' => $request->name ?? $auth->first_name,
+        ]);
+
+        // Creator becomes owner/member
+        $membership = TeamMember::create([
+            'user_id' => $auth->id,
+            'team_id' => $team->id,
+            'role' => 'owner',
+            'status' => 'active',
+        ]);
+
+        return redirect()->back()->with('success', 'Team create successfully');
+    }
+
 
     public function invite(Request $request)
     {
@@ -69,10 +135,10 @@ class UserTeamController extends Controller
         ]);
 
         $teamId = auth()->user()->currentTeamId();
-        
+
         // Check if already a member in team_members
         $isMember = TeamMember::where('team_id', $teamId)
-            ->whereHas('user', function($q) use ($request) {
+            ->whereHas('user', function ($q) use ($request) {
                 $q->where('email', $request->email);
             })->exists();
 
@@ -110,7 +176,7 @@ class UserTeamController extends Controller
     {
         $request->validate(['role' => 'required|in:owner,admin,editor,viewer']);
         $teamId = auth()->user()->currentTeamId();
-        
+
         if ($request->get('is_invite')) {
             $invite = TeamInvite::where('team_id', $teamId)->findOrFail($id);
             $invite->update(['role' => $request->role]);
@@ -125,7 +191,7 @@ class UserTeamController extends Controller
     public function removeMember(Request $request, $id)
     {
         $teamId = auth()->user()->currentTeamId();
-        
+
         if ($request->get('is_invite')) {
             $invite = TeamInvite::where('team_id', $teamId)->findOrFail($id);
             $invite->delete();
